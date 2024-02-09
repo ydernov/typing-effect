@@ -1,0 +1,125 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 20px;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#catsDiv {
+}
+
+/* @keyframes changeBackground {
+  0% {
+    background-color: red;
+    scale: 0 1;
+  }
+  25% {
+    background-color: yellow;
+  }
+  50% {
+    background-color: blue;
+  }
+  75% {
+    background-color: green;
+  }
+  100% {
+    background-color: red;
+    scale: 3 1;
+  }
+} */
+
+/* @keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  51% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+} */
+
+.cursor {
+  background-color: aqua;
+  display: inline-block;
+  width: 10px;
+  /* animation-name: changeBackground;
+  animation-duration: 1s;
+  animation-iteration-count: infinite; */
+
+  height: 1.4em;
+  vertical-align: middle;
+
+  width: 2px;
+  height: 1em;
+}
+
+/* .idle {
+  animation-name: blink;
+} */
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes move {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100px);
+  }
+}
+
+.green {
+  animation: colorChangeGreen 2s infinite;
+}
+
+.red {
+  animation: colorChangeRed 2s infinite;
+}
+
+@keyframes colorChangeGreen {
+  0% {
+    background-color: #0f0;
+  }
+  50% {
+    background-color: #00f;
+  }
+  100% {
+    background-color: #0f0;
+  }
+}
+
+@keyframes colorChangeRed {
+  0% {
+    background-color: rgb(251, 255, 3);
+  }
+  50% {
+    background-color: rgb(255, 0, 0);
+  }
+  100% {
+    background-color: rgb(251, 255, 3);
+  }
+}
