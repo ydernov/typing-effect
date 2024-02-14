@@ -239,11 +239,6 @@ describe("start method tests", () => {
     expect(te.instanceState).toBe("running");
     expect(te.runningState).toBe("cycleStart");
 
-    // start sets runningState to cycleStart
-    // jumpTo callback is scheduled on cycleStart and it sets runningState to cycleStart
-    vi.advanceTimersByTime(16);
-    expect(te.runningState).toBe("cycleStart");
-
     // getting to typing
     vi.advanceTimersByTime(16);
     expect(te.runningState).toBe("delayBeforeTyping");

@@ -652,10 +652,12 @@ export class TypingEffect {
   };
 
   #pause = () => {
-    this.#pausedRunningState = this.#runningState;
-    this.#runningState = "idle";
-    this.#overrideRunningStateBeforeStageExecution = null;
-    this.#overrideRunningStateAfterStageExecution = null;
+    if (!this.#pausedRunningState) {
+      this.#pausedRunningState = this.#runningState;
+      this.#runningState = "idle";
+      this.#overrideRunningStateBeforeStageExecution = null;
+      this.#overrideRunningStateAfterStageExecution = null;
+    }
   };
 
   #resume = () => {
@@ -762,13 +764,10 @@ export class TypingEffect {
 
       ...this.#createStage("cycleStart", "delayBeforeTyping", () => {
         // call .next() to check if iterator is done, to prevent going to "delayBeforeTyping" and so on
-        if (!this.#isFirstIteratorResultProcessed) {
-          this.#setLastResult(
-            this.#iteratorState.iterator?.next() ||
-              this.#iteratorState.lastResult
-          );
-          this.#isFirstIteratorResultProcessed = true;
-        }
+        this.#setLastResult(
+          this.#iteratorState.iterator?.next() || this.#iteratorState.lastResult
+        );
+        this.#isFirstIteratorResultProcessed = true;
 
         return "done";
       }),
@@ -790,6 +789,13 @@ export class TypingEffect {
       ...this.#createStage("typing", "afterTyping", (timestamp: number) => {
         const typingReadyTimestamp =
           this.#lastStringData.changeTimestamp + this.#options.typingDelay;
+
+        console.log(
+          "typingReadyTimestamp",
+          typingReadyTimestamp,
+          "timestamp",
+          timestamp
+        );
         if (timestamp >= typingReadyTimestamp) {
           const typingVar = Math.floor(
             Math.random() * this.#options.typingVariation

@@ -38,7 +38,7 @@ export function* substringGeneratorForArray(
   const rewindStringOnFinish = options?.rewindStringOnFinish,
     startAt = options?.startAtString ?? 0;
 
-  let index = startAt < strings.length ? startAt : 0;
+  let index = startAt < strings.length && startAt > 0 ? startAt : 0;
 
   while (strings.length > index) {
     const currentString = strings[index] || "";
