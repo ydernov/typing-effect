@@ -503,7 +503,7 @@ export class TypingEffect {
           indexesToRemove.unshift(index);
         }
         if (!callbackData.called && !callbackData.remove) {
-          const result = callbackData.callback();
+          callbackData.callback();
           callbackData.called = true;
         }
       });
