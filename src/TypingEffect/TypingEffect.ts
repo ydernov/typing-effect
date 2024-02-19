@@ -392,6 +392,7 @@ export class TypingEffect {
 
           console.groupEnd();
         } else {
+          console.log('this.#runScheduledCallbacks("arrayFinished");');
           this.#runScheduledCallbacks("arrayFinished");
           if (this.#options.loop) {
             this.#setIterator(
@@ -520,6 +521,8 @@ export class TypingEffect {
     }
   };
 
+  #lastStageTimestamp = 0;
+
   #createStage = <
     StageName extends RunningStageName,
     NextStageName extends RunningStageName
@@ -537,10 +540,15 @@ export class TypingEffect {
               ? nextStageName()
               : nextStageName;
           if (stageFunction) {
-            return stageFunction(timestamp) === "done"
-              ? nextStageNameString
-              : (stageName as unknown as NextStageName);
+            const fnResult = stageFunction(timestamp);
+            if (fnResult === "done") {
+              this.#lastStageTimestamp = timestamp;
+              return nextStageNameString;
+            } else {
+              return stageName as unknown as NextStageName;
+            }
           } else {
+            this.#lastStageTimestamp = timestamp;
             return nextStageNameString;
           }
         },
@@ -567,7 +575,11 @@ export class TypingEffect {
   ) {
     if (
       timestamp >=
-      this.#cursorState.lastChangeTimestamp + this.#options.cursorBlinkRate
+      Math.max(
+        this.#lastStageTimestamp,
+        this.#cursorState.lastChangeTimestamp
+      ) +
+        this.#options.cursorBlinkRate
     ) {
       this.#cursorState.lastChangeTimestamp = timestamp;
       this.#cursorState.visible = !this.#cursorState.visible;
@@ -775,9 +787,8 @@ export class TypingEffect {
       ...this.#createStage("delayBeforeTyping", "beforeTyping", (timestamp) => {
         if (
           timestamp >=
-          this.#lastStringData.changeTimestamp + this.#options.delayBeforeTyping
+          this.#lastStageTimestamp + this.#options.delayBeforeTyping
         ) {
-          this.#lastStringData.changeTimestamp = timestamp;
           return "done";
         } else if (this.#options.showCursor) {
           this.#callCallback(this.#handleCursorBlinking(timestamp, ""));
@@ -840,16 +851,8 @@ export class TypingEffect {
         (timestamp) => {
           if (
             timestamp >=
-            this.#lastStringData.changeTimestamp +
-              this.#options.delayBeforeUntyping
+            this.#lastStageTimestamp + this.#options.delayBeforeUntyping
           ) {
-            console.log(
-              "timestamp >= this.lastStringData.changeTimestamp + this.options.delayBeforeUntyping",
-              timestamp,
-              this.#lastStringData.changeTimestamp,
-              this.#options.delayBeforeUntyping
-            );
-            this.#lastStringData.changeTimestamp = timestamp;
             return "done";
           } else if (this.#options.showCursor) {
             this.#callCallback(this.#handleCursorBlinking(timestamp));

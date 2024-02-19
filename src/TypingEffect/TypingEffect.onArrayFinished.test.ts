@@ -351,4 +351,73 @@ describe("onArrayFinished method tests", () => {
 
     te.dispose();
   });
+
+  test("onArrayFinished should be called once if loop is false", () => {
+    const strings = ["first string", "second string", "third string"];
+    const te = new TypingEffect(strings, vi.fn(), {
+      delayBeforeTyping: 0,
+      delayBeforeUntyping: 0,
+      typingDelay: 0,
+      untypingDelay: 0,
+      typingVariation: 0,
+      loop: false,
+    }).start();
+    const onArrayFinishedCb = vi.fn();
+    te.onArrayFinished(onArrayFinishedCb);
+
+    const stringCycle = (string: string) => {
+      expect(te.runningState).toBe("cycleStart");
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("delayBeforeTyping");
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("beforeTyping");
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("typing");
+
+      vi.advanceTimersByTime(16 * string.length);
+
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("afterTyping");
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("delayAfterTyping");
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("beforeUntyping");
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("untyping");
+      vi.advanceTimersByTime(16);
+
+      vi.advanceTimersByTime(16 * string.length);
+
+      vi.advanceTimersByTime(16);
+      expect(te.runningState).toBe("afterUntyping");
+      vi.advanceTimersByTime(16);
+    };
+
+    // first string
+    stringCycle(strings[0]!);
+
+    // second string
+    stringCycle(strings[1]!);
+
+    // third string
+    stringCycle(strings[2]!);
+
+    // getting to the end of array
+    expect(te.runningState).toBe("cycleStart");
+    vi.advanceTimersByTime(16);
+    expect(te.runningState).toBe("delayBeforeTyping");
+
+    expect(onArrayFinishedCb).toHaveBeenCalledTimes(0);
+    vi.advanceTimersByTime(16);
+    expect(onArrayFinishedCb).toHaveBeenCalledTimes(1);
+    onArrayFinishedCb.mockClear();
+
+    expect(te.runningState).toBe("idle");
+    vi.advanceTimersByTime(1600);
+    expect(te.runningState).toBe("idle");
+
+    expect(onArrayFinishedCb).toHaveBeenCalledTimes(0);
+
+    te.dispose();
+  });
 });

@@ -178,6 +178,11 @@ describe("start method tests", () => {
       expect(te.runningState).toBe(expectedRunningState);
 
       vi.advanceTimersByTime(16);
+      if (method === "pause") {
+        // paused sneaks in one frame of blinking cursor
+        expect(callback).toHaveBeenLastCalledWith(strings[1]);
+        callback.mockClear();
+      }
 
       te.start();
       expect(te.instanceState).toBe("running");

@@ -346,16 +346,14 @@ describe.each([
     beforeEach(() => {
       loopFnCallTimes = -1;
 
-      mockRequestAnimationFrame.mockImplementation(
-        (loopFn: FrameRequestCallback) => {
-          while (loopFnCallTimes + 1 < timestamps.length) {
-            loopFnCallTimes++;
-            loopFn(timestamps[loopFnCallTimes]!);
-          }
-
-          return ++mockRafId;
+      mockRequestAnimationFrame.mockImplementation((loopFn) => {
+        while (loopFnCallTimes + 1 < timestamps.length) {
+          loopFnCallTimes++;
+          loopFn(timestamps[loopFnCallTimes]!);
         }
-      );
+
+        return ++mockRafId;
+      });
 
       vi.stubGlobal("requestAnimationFrame", mockRequestAnimationFrame);
     });
