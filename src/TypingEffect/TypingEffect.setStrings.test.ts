@@ -41,7 +41,7 @@ describe(`setStrings method tests`, () => {
         expect(te.runningState).toBe("idle");
 
         expect(te.setStrings(strings, useNow)).toBe(te);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
 
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
@@ -133,7 +133,7 @@ describe(`setStrings method tests`, () => {
             .setStrings(strings2, useNow)
             .setStrings(strings3, useNow)
         ).toBe(te);
-        expect(te.strings).toBe(strings3);
+        expect(te.strings).toEqual(strings3);
 
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
@@ -190,12 +190,12 @@ describe(`setStrings method tests`, () => {
         });
 
         expect(te.callback).toBe(cb);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
 
         expect(te.setStrings(strings, useNow)).toBe(te);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
 
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
@@ -237,7 +237,7 @@ describe(`setStrings method tests`, () => {
         });
 
         expect(te.callback).toBe(cb);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
 
@@ -279,7 +279,7 @@ describe(`setStrings method tests`, () => {
         });
 
         expect(te.callback).toBe(cb);
-        expect(te.strings).toBe(strings1);
+        expect(te.strings).toEqual(strings1);
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
 
@@ -289,7 +289,7 @@ describe(`setStrings method tests`, () => {
             .setStrings(strings2, useNow)
             .setStrings(strings3, useNow)
         ).toBe(te);
-        expect(te.strings).toBe(strings3);
+        expect(te.strings).toEqual(strings3);
 
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
@@ -357,7 +357,7 @@ describe(`setStrings method tests`, () => {
 
       // call in the middle of typing
       te.setStrings(newStrings);
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       const secondStringPart = " strings 1";
       vi.advanceTimersByTime(16 * secondStringPart.length);
@@ -386,14 +386,14 @@ describe(`setStrings method tests`, () => {
       initialCallback.mockClear();
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("afterUntyping");
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("cycleStart");
       // setStrings callback runs here, sets new strings and goes to delayBeforeTyping
 
       vi.advanceTimersByTime(16);
-      expect(te.strings).toBe(newStrings);
+      expect(te.strings).toEqual(newStrings);
       expect(te.runningState).toBe("delayBeforeTyping");
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("beforeTyping");
@@ -456,7 +456,7 @@ describe(`setStrings method tests`, () => {
 
       // call in the middle of typing
       te.setStrings(newStrings);
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       const secondStringPart = " strings 1";
       vi.advanceTimersByTime(16 * secondStringPart.length);
@@ -485,7 +485,7 @@ describe(`setStrings method tests`, () => {
       initialCallback.mockClear();
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("afterUntyping");
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("cycleStart");
@@ -493,7 +493,7 @@ describe(`setStrings method tests`, () => {
       vi.advanceTimersByTime(16);
       expect(te.instanceState).toBe("initialized");
       expect(te.runningState).toBe("idle");
-      expect(te.strings).toBe(newStrings);
+      expect(te.strings).toEqual(newStrings);
 
       vi.advanceTimersByTime(1600);
       expect(te.instanceState).toBe("initialized");
@@ -537,7 +537,7 @@ describe(`setStrings method tests`, () => {
 
       // call in the middle of typing
       te.setStrings(strings1).setStrings(strings2).setStrings(strings3);
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       const secondStringPart = " strings 1";
       vi.advanceTimersByTime(16 * secondStringPart.length);
@@ -566,13 +566,13 @@ describe(`setStrings method tests`, () => {
       initialCallback.mockClear();
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("afterUntyping");
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("cycleStart");
       // setStrings callback runs here, sets new strings and goes to delayBeforeTyping
       vi.advanceTimersByTime(16);
-      expect(te.strings).toBe(strings3);
+      expect(te.strings).toEqual(strings3);
       expect(te.runningState).toBe("delayBeforeTyping");
 
       vi.advanceTimersByTime(16);
@@ -637,7 +637,7 @@ describe(`setStrings method tests`, () => {
 
       // call in the middle of typing
       te.setStrings(strings1).setStrings(strings2).setStrings(strings3);
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       const secondStringPart = " strings 1";
       vi.advanceTimersByTime(16 * secondStringPart.length);
@@ -666,7 +666,7 @@ describe(`setStrings method tests`, () => {
       initialCallback.mockClear();
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("afterUntyping");
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
 
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("cycleStart");
@@ -674,7 +674,7 @@ describe(`setStrings method tests`, () => {
       vi.advanceTimersByTime(16);
       expect(te.instanceState).toBe("initialized");
       expect(te.runningState).toBe("idle");
-      expect(te.strings).toBe(strings3);
+      expect(te.strings).toEqual(strings3);
 
       vi.advanceTimersByTime(1600);
       expect(te.instanceState).toBe("initialized");
@@ -715,7 +715,7 @@ describe(`setStrings method tests`, () => {
 
       // call in the middle of typing
       te.setCallback(null).setStrings(newStrings);
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
       expect(te.callback).toBe(initialCallback);
 
       const secondStringPart = " strings 1";
@@ -745,7 +745,7 @@ describe(`setStrings method tests`, () => {
       initialCallback.mockClear();
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("afterUntyping");
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
       expect(te.callback).toBe(initialCallback);
 
       vi.advanceTimersByTime(16);
@@ -753,7 +753,7 @@ describe(`setStrings method tests`, () => {
       // setStrings callback and setCallback callback run here
 
       vi.advanceTimersByTime(16);
-      expect(te.strings).toBe(newStrings);
+      expect(te.strings).toEqual(newStrings);
       expect(te.callback).toBe(null);
 
       expect(te.instanceState).toBe("initialized");
@@ -802,7 +802,7 @@ describe(`setStrings method tests`, () => {
       // call in the middle of typing
       te.setStrings(newStrings, true);
       // strings are new on the current current cycle
-      expect(te.strings).toBe(newStrings);
+      expect(te.strings).toEqual(newStrings);
       expect(te.instanceState).toBe("running");
       expect(te.runningState).toBe("typing");
 
@@ -876,7 +876,7 @@ describe(`setStrings method tests`, () => {
       te.setStrings(newStrings, true);
       // strings are new on the current current cycle
       // runningState is "idle" immediately since instanceState is initialized
-      expect(te.strings).toBe(newStrings);
+      expect(te.strings).toEqual(newStrings);
       expect(te.instanceState).toBe("initialized");
       expect(te.runningState).toBe("idle");
       initialCallback.mockClear();
@@ -929,7 +929,7 @@ describe(`setStrings method tests`, () => {
         .setStrings(strings2, true)
         .setStrings(strings3, true);
 
-      expect(te.strings).toBe(strings3);
+      expect(te.strings).toEqual(strings3);
       expect(te.instanceState).toBe("ready");
       expect(te.runningState).toBe("idle");
       initialCallback.mockClear();
@@ -1005,7 +1005,7 @@ describe(`setStrings method tests`, () => {
         .setStrings(strings2, true)
         .setStrings(strings3, true);
 
-      expect(te.strings).toBe(strings3);
+      expect(te.strings).toEqual(strings3);
       expect(te.instanceState).toBe("initialized");
       expect(te.runningState).toBe("idle");
       initialCallback.mockClear();
@@ -1054,7 +1054,7 @@ describe(`setStrings method tests`, () => {
 
       // call in the middle of typing
       te.setCallback(null, true).setStrings(newStrings, true);
-      expect(te.strings).toBe(newStrings);
+      expect(te.strings).toEqual(newStrings);
       expect(te.callback).toBe(null);
 
       expect(te.instanceState).toBe("initialized");

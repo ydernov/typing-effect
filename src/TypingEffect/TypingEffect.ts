@@ -9,7 +9,7 @@ type CursorSymbols = {
   blinking: string;
 };
 
-type TypingEffectOptions = {
+export type TypingEffectOptions = {
   /** Delay between typing each character, in milliseconds. Defaults to `100ms`. */
   typingDelay?: number;
   /** Delay between untyping each character. Defaults to `30ms`. */
@@ -97,7 +97,10 @@ export class TypingEffect {
   };
 
   get options() {
-    return this.#options;
+    return {
+      ...this.#options,
+      cursorSymbol: { ...this.#options.cursorSymbol },
+    };
   }
 
   #iteratorState: {
@@ -137,7 +140,7 @@ export class TypingEffect {
   #strings: string[] = [];
 
   get strings() {
-    return this.#strings;
+    return [...this.#strings];
   }
 
   #setStrings = (strings: string[], now?: boolean) => {

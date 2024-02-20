@@ -36,7 +36,7 @@ describe(`setCallback method tests`, () => {
         });
 
         expect(te.callback).toEqual(null);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("initialized");
         expect(te.runningState).toBe("idle");
 
@@ -80,7 +80,7 @@ describe(`setCallback method tests`, () => {
           typingVariation: 0,
         });
 
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.callback).toEqual(null);
 
         expect(te.instanceState).toBe("initialized");
@@ -124,7 +124,7 @@ describe(`setCallback method tests`, () => {
         });
 
         expect(te.callback).toEqual(null);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("initialized");
         expect(te.runningState).toBe("idle");
 
@@ -193,7 +193,7 @@ describe(`setCallback method tests`, () => {
         });
 
         expect(te.callback).toBe(cb1);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
 
@@ -240,7 +240,7 @@ describe(`setCallback method tests`, () => {
         });
 
         expect(te.callback).toBe(cb);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
 
@@ -283,7 +283,7 @@ describe(`setCallback method tests`, () => {
         });
 
         expect(te.callback).toBe(cb1);
-        expect(te.strings).toBe(strings);
+        expect(te.strings).toEqual(strings);
         expect(te.instanceState).toBe("ready");
         expect(te.runningState).toBe("idle");
 
@@ -724,7 +724,7 @@ describe(`setCallback method tests`, () => {
 
       // call in the middle of typing
       te.setStrings([]).setCallback(newCallback);
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
       expect(te.callback).toBe(initialCallback);
 
       const secondStringPart = " strings 1";
@@ -754,7 +754,7 @@ describe(`setCallback method tests`, () => {
       initialCallback.mockClear();
       vi.advanceTimersByTime(16);
       expect(te.runningState).toBe("afterUntyping");
-      expect(te.strings).toBe(initialStrings);
+      expect(te.strings).toEqual(initialStrings);
       expect(te.callback).toBe(initialCallback);
 
       vi.advanceTimersByTime(16);
