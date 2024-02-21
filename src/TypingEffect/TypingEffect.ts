@@ -16,8 +16,8 @@ export type TypingEffectOptions = {
   untypingDelay?: number;
   /** Delay before starting to type a string. Defaults to `1600ms`. */
   delayBeforeTyping?: number;
-  /** Delay before starting to untype a string. Defaults to `3000ms.` */
-  delayBeforeUntyping?: number;
+  /** Delay after string is typed. Defaults to `3000ms.` */
+  delayAfterTyping?: number;
   /** If true, untypes the string after the typing finishes. Defaults to `true`. */
   untypeString?: boolean;
   /** Variation in typing speed. While typing adds a random delay between 0 and `typingVariation` value. Defaults to `100ms`. */
@@ -83,7 +83,7 @@ export class TypingEffect {
     typingDelay: 100,
     untypingDelay: 30,
     delayBeforeTyping: 1600,
-    delayBeforeUntyping: 3000,
+    delayAfterTyping: 3000,
     untypeString: true,
     typingVariation: 100,
     showCursor: true,
@@ -802,17 +802,23 @@ export class TypingEffect {
 
       ...this.#createStage("typing", "afterTyping", (timestamp: number) => {
         const typingReadyTimestamp =
-          this.#lastStringData.changeTimestamp + this.#options.typingDelay;
+          Math.max(
+            this.#lastStageTimestamp,
+            this.#lastStringData.changeTimestamp
+          ) + this.#options.typingDelay;
 
-        console.log(
-          "typingReadyTimestamp",
-          typingReadyTimestamp,
-          "timestamp",
-          timestamp
-        );
         if (timestamp >= typingReadyTimestamp) {
           const typingVar = Math.floor(
             Math.random() * this.#options.typingVariation
+          );
+
+          console.log(
+            "typingReadyTimestamp",
+            typingReadyTimestamp,
+            "timestamp",
+            timestamp,
+            "typingVar",
+            typingVar
           );
 
           if (timestamp >= typingReadyTimestamp + typingVar) {
@@ -854,7 +860,7 @@ export class TypingEffect {
         (timestamp) => {
           if (
             timestamp >=
-            this.#lastStageTimestamp + this.#options.delayBeforeUntyping
+            this.#lastStageTimestamp + this.#options.delayAfterTyping
           ) {
             return "done";
           } else if (this.#options.showCursor) {

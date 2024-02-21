@@ -94,7 +94,7 @@ describe("stop method tests", () => {
       const callback = vi.fn();
       const te = new TypingEffect(strings, callback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -176,7 +176,7 @@ describe("stop method tests", () => {
     const callback = vi.fn();
     const te = new TypingEffect(strings, callback, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -221,7 +221,7 @@ describe("stop method tests", () => {
     const callback = vi.fn();
     const te = new TypingEffect(strings, callback, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -266,7 +266,7 @@ describe("stop method tests", () => {
     const callback = vi.fn();
     const te = new TypingEffect(strings, callback, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -287,7 +287,7 @@ describe("stop method tests", () => {
     const callback = vi.fn();
     const te = new TypingEffect(strings, callback, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -314,7 +314,7 @@ describe("stop method tests", () => {
     const callback = vi.fn();
     const te = new TypingEffect(strings, callback, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,

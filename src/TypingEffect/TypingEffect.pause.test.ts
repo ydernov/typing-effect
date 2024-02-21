@@ -163,7 +163,7 @@ describe("pause method tests", () => {
       const cb = vi.fn();
       const te = new TypingEffect(["first string", "second string"], cb, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -224,7 +224,7 @@ describe("pause method tests", () => {
       const cb = vi.fn();
       const te = new TypingEffect(["first string", "second string"], cb, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -297,7 +297,7 @@ describe("pause method tests", () => {
       const cb = vi.fn();
       const te = new TypingEffect(["first string", "second string"], cb, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -343,7 +343,7 @@ describe("pause method tests", () => {
     const callback = vi.fn();
     const te = new TypingEffect(strings, callback, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,

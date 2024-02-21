@@ -19,7 +19,7 @@ describe("default options tests", () => {
     expect(te.options.typingDelay).toBe(100);
     expect(te.options.untypingDelay).toBe(30);
     expect(te.options.delayBeforeTyping).toBe(1600);
-    expect(te.options.delayBeforeUntyping).toBe(3000);
+    expect(te.options.delayAfterTyping).toBe(3000);
     expect(te.options.untypeString).toBe(true);
     expect(te.options.typingVariation).toBe(100);
     expect(te.options.showCursor).toBe(true);
@@ -37,7 +37,7 @@ describe("default options tests", () => {
     const cb = vi.fn();
     const te = new TypingEffect(strings, cb, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       untypingDelay: 0,
       typingVariation: 0,
     }).start();
@@ -68,7 +68,7 @@ describe("default options tests", () => {
     const te = new TypingEffect(strings, cb, {
       typingDelay: 0,
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingVariation: 0,
     }).start();
 
@@ -111,7 +111,7 @@ describe("default options tests", () => {
     const te = new TypingEffect(strings, cb, {
       typingDelay: 0,
       untypingDelay: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingVariation: 0,
     }).start();
 
@@ -155,7 +155,7 @@ describe("default options tests", () => {
     vi.advanceTimersByTime(16);
     expect(te.runningState).toBe("delayAfterTyping");
 
-    vi.advanceTimersByTime(roundUpToSixteen(te.options.delayBeforeUntyping));
+    vi.advanceTimersByTime(roundUpToSixteen(te.options.delayAfterTyping));
     expect(te.runningState).toBe("beforeUntyping");
 
     expect(cb).toBeCalledTimes(6);
@@ -178,7 +178,7 @@ describe("default options tests", () => {
     const te = new TypingEffect(strings, cb, {
       typingDelay: 0,
       untypingDelay: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingVariation: 0,
       delayBeforeTyping: 0,
     }).start();
@@ -328,7 +328,7 @@ describe("default options tests", () => {
       typingDelay: 0,
       untypingDelay: 0,
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
     }).start();
 
     const mathRandomSpy = vi
@@ -553,7 +553,7 @@ describe("default options tests", () => {
 
     expect(performance.now()).toBe(4304);
     vi.advanceTimersByTime(
-      te.options.delayBeforeUntyping - defaultCursorBlinkRateTo16th * 5 + 16
+      te.options.delayAfterTyping - defaultCursorBlinkRateTo16th * 5 + 16
     );
 
     expect(cb).toBeCalledTimes(5);
@@ -580,7 +580,7 @@ describe("default options tests", () => {
     const cb = vi.fn();
     const te = new TypingEffect(strings, cb, {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       untypingDelay: 0,
       typingDelay: 0,
       typingVariation: 0,

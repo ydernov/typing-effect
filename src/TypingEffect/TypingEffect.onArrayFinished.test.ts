@@ -16,7 +16,7 @@ describe("onArrayFinished method tests", () => {
     const strings = ["first string", "second string", "third string"];
     const te = new TypingEffect(strings, vi.fn(), {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -149,7 +149,7 @@ describe("onArrayFinished method tests", () => {
     const strings = ["first string", "second string", "third string"];
     const te = new TypingEffect(strings, vi.fn(), {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -254,7 +254,7 @@ describe("onArrayFinished method tests", () => {
     const strings = ["first string", "second string", "third string"];
     const te = new TypingEffect(strings, vi.fn(), {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,
@@ -356,7 +356,7 @@ describe("onArrayFinished method tests", () => {
     const strings = ["first string", "second string", "third string"];
     const te = new TypingEffect(strings, vi.fn(), {
       delayBeforeTyping: 0,
-      delayBeforeUntyping: 0,
+      delayAfterTyping: 0,
       typingDelay: 0,
       untypingDelay: 0,
       typingVariation: 0,

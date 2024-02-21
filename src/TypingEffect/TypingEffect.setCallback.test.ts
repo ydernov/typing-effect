@@ -29,7 +29,7 @@ describe(`setCallback method tests`, () => {
 
         const te = new TypingEffect(strings, undefined, {
           delayBeforeTyping: 0,
-          delayBeforeUntyping: 0,
+          delayAfterTyping: 0,
           typingDelay: 0,
           untypingDelay: 0,
           typingVariation: 0,
@@ -74,7 +74,7 @@ describe(`setCallback method tests`, () => {
 
         const te = new TypingEffect(strings, undefined, {
           delayBeforeTyping: 0,
-          delayBeforeUntyping: 0,
+          delayAfterTyping: 0,
           typingDelay: 0,
           untypingDelay: 0,
           typingVariation: 0,
@@ -117,7 +117,7 @@ describe(`setCallback method tests`, () => {
 
         const te = new TypingEffect(strings, undefined, {
           delayBeforeTyping: 0,
-          delayBeforeUntyping: 0,
+          delayAfterTyping: 0,
           typingDelay: 0,
           untypingDelay: 0,
           typingVariation: 0,
@@ -186,7 +186,7 @@ describe(`setCallback method tests`, () => {
 
         const te = new TypingEffect(strings, cb1, {
           delayBeforeTyping: 0,
-          delayBeforeUntyping: 0,
+          delayAfterTyping: 0,
           typingDelay: 0,
           untypingDelay: 0,
           typingVariation: 0,
@@ -233,7 +233,7 @@ describe(`setCallback method tests`, () => {
 
         const te = new TypingEffect(strings, cb, {
           delayBeforeTyping: 0,
-          delayBeforeUntyping: 0,
+          delayAfterTyping: 0,
           typingDelay: 0,
           untypingDelay: 0,
           typingVariation: 0,
@@ -276,7 +276,7 @@ describe(`setCallback method tests`, () => {
 
         const te = new TypingEffect(strings, cb1, {
           delayBeforeTyping: 0,
-          delayBeforeUntyping: 0,
+          delayAfterTyping: 0,
           typingDelay: 0,
           untypingDelay: 0,
           typingVariation: 0,
@@ -336,7 +336,7 @@ describe(`setCallback method tests`, () => {
       const newCallback = vi.fn();
       const te = new TypingEffect(strings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -436,7 +436,7 @@ describe(`setCallback method tests`, () => {
       const initialCallback = vi.fn();
       const te = new TypingEffect(strings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -519,7 +519,7 @@ describe(`setCallback method tests`, () => {
       const cb3 = vi.fn();
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -620,7 +620,7 @@ describe(`setCallback method tests`, () => {
       const cb3 = null;
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -698,7 +698,7 @@ describe(`setCallback method tests`, () => {
       const newCallback = vi.fn();
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -784,7 +784,7 @@ describe(`setCallback method tests`, () => {
       const newCallback = vi.fn();
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -851,7 +851,7 @@ describe(`setCallback method tests`, () => {
       const initialCallback = vi.fn();
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -902,7 +902,7 @@ describe(`setCallback method tests`, () => {
       const cb3 = vi.fn();
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -977,7 +977,7 @@ describe(`setCallback method tests`, () => {
       const cb3 = null;
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
@@ -1027,7 +1027,7 @@ describe(`setCallback method tests`, () => {
       const newCallback = vi.fn();
       const te = new TypingEffect(initialStrings, initialCallback, {
         delayBeforeTyping: 0,
-        delayBeforeUntyping: 0,
+        delayAfterTyping: 0,
         typingDelay: 0,
         untypingDelay: 0,
         typingVariation: 0,
