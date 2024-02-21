@@ -882,6 +882,532 @@ describe(`setOptions method tests`, () => {
     });
 
     describe("set untypingDelay during untyping test cases", () => {
+      test("scheduled set", () => {
+        const strings = ["first", "second", "third"];
+        const cb = vi.fn();
+        const te = new TypingEffect(strings, cb, {
+          delayBeforeTyping: 0,
+          delayAfterTyping: 0,
+          showCursor: false,
+          typingDelay: 0,
+          typingVariation: 0,
+          untypingDelay: 0,
+        }).start();
+
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "first".length);
+        expect(cb).toHaveBeenLastCalledWith("first");
+        cb.mockClear();
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+        vi.advanceTimersByTime(16);
+
+        vi.advanceTimersByTime(16 * 3);
+        expect(cb).toHaveBeenLastCalledWith("fi");
+
+        te.setOptions({ untypingDelay: 200 });
+        expect(te.options.untypingDelay).toBe(0);
+
+        vi.advanceTimersByTime(16 * 2);
+        expect(cb).toHaveBeenLastCalledWith("");
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+
+        expect(te.options.untypingDelay).toBe(200);
+
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "second".length);
+        expect(cb).toHaveBeenLastCalledWith("second");
+        cb.mockClear();
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenCalledTimes(0);
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("secon");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("seco");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("sec");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("se");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("s");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenCalledTimes(0);
+        cb.mockClear();
+        expect(te.runningState).toBe("afterUntyping");
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+
+        te.dispose();
+      });
+      test('immediate set - with "now" === true', () => {
+        const strings = ["first", "second", "third"];
+        const cb = vi.fn();
+        const te = new TypingEffect(strings, cb, {
+          delayBeforeTyping: 0,
+          delayAfterTyping: 0,
+          showCursor: false,
+          typingDelay: 0,
+          typingVariation: 0,
+          untypingDelay: 0,
+        }).start();
+
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "first".length);
+        expect(cb).toHaveBeenLastCalledWith("first");
+        cb.mockClear();
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+        vi.advanceTimersByTime(16);
+
+        vi.advanceTimersByTime(16 * 3);
+        expect(cb).toHaveBeenLastCalledWith("fi");
+        cb.mockClear();
+
+        te.setOptions({ untypingDelay: 200 }, true);
+        expect(te.options.untypingDelay).toBe(200);
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("f");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenCalledTimes(0);
+        cb.mockClear();
+
+        expect(te.runningState).toBe("afterUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "second".length);
+        expect(cb).toHaveBeenLastCalledWith("second");
+        cb.mockClear();
+
+        te.setOptions({ untypingDelay: 100 }, true);
+        expect(te.options.untypingDelay).toBe(100);
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenCalledTimes(0);
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenLastCalledWith("secon");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenLastCalledWith("seco");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenLastCalledWith("sec");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        te.setOptions({ untypingDelay: 500 }, true);
+        expect(te.options.untypingDelay).toBe(500);
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenLastCalledWith("se");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenLastCalledWith("s");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenLastCalledWith("");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenCalledTimes(0);
+        cb.mockClear();
+        expect(te.runningState).toBe("afterUntyping");
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+
+        te.dispose();
+      });
+      test("concurrent scheduled set", () => {
+        const strings = ["first", "second", "third"];
+        const cb = vi.fn();
+        const te = new TypingEffect(strings, cb, {
+          delayBeforeTyping: 0,
+          delayAfterTyping: 0,
+          showCursor: false,
+          typingDelay: 0,
+          typingVariation: 0,
+          untypingDelay: 0,
+        }).start();
+
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "first".length);
+        expect(cb).toHaveBeenLastCalledWith("first");
+        cb.mockClear();
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+        vi.advanceTimersByTime(16);
+
+        vi.advanceTimersByTime(16 * 3);
+        expect(cb).toHaveBeenLastCalledWith("fi");
+
+        te.setOptions({ untypingDelay: 400 })
+          .setOptions({ untypingDelay: 100 })
+          .setOptions({ untypingDelay: 200 });
+        expect(te.options.untypingDelay).toBe(0);
+
+        vi.advanceTimersByTime(16 * 2);
+        expect(cb).toHaveBeenLastCalledWith("");
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+
+        expect(te.options.untypingDelay).toBe(200);
+
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "second".length);
+        expect(cb).toHaveBeenLastCalledWith("second");
+        cb.mockClear();
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenCalledTimes(0);
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("secon");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("seco");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("sec");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("se");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("s");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenCalledTimes(0);
+        cb.mockClear();
+        expect(te.runningState).toBe("afterUntyping");
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+
+        te.dispose();
+      });
+      test('concurrent immediate set - with "now" === true', () => {
+        const strings = ["first", "second", "third"];
+        const cb = vi.fn();
+        const te = new TypingEffect(strings, cb, {
+          delayBeforeTyping: 0,
+          delayAfterTyping: 0,
+          showCursor: false,
+          typingDelay: 0,
+          typingVariation: 0,
+          untypingDelay: 0,
+        }).start();
+
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "first".length);
+        expect(cb).toHaveBeenLastCalledWith("first");
+        cb.mockClear();
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+        vi.advanceTimersByTime(16);
+
+        vi.advanceTimersByTime(16 * 3);
+        expect(cb).toHaveBeenLastCalledWith("fi");
+        cb.mockClear();
+
+        te.setOptions({ untypingDelay: 500 }, true)
+          .setOptions({ untypingDelay: 0 }, true)
+          .setOptions({ untypingDelay: 200 }, true);
+        expect(te.options.untypingDelay).toBe(200);
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("f");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenLastCalledWith("");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(200));
+        expect(cb).toHaveBeenCalledTimes(0);
+        cb.mockClear();
+
+        expect(te.runningState).toBe("afterUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * "second".length);
+        expect(cb).toHaveBeenLastCalledWith("second");
+        cb.mockClear();
+
+        te.setOptions({ untypingDelay: 600 }, true)
+          .setOptions({ untypingDelay: 1000 }, true)
+          .setOptions({ untypingDelay: 100 }, true);
+        expect(te.options.untypingDelay).toBe(100);
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenCalledTimes(0);
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenLastCalledWith("secon");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenLastCalledWith("seco");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(100));
+        expect(cb).toHaveBeenLastCalledWith("sec");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        te.setOptions({ untypingDelay: 5 }, true)
+          .setOptions({ untypingDelay: 50 }, true)
+          .setOptions({ untypingDelay: 500 }, true);
+        expect(te.options.untypingDelay).toBe(500);
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenLastCalledWith("se");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenLastCalledWith("s");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenLastCalledWith("");
+        expect(cb).toHaveBeenCalledTimes(1);
+        cb.mockClear();
+
+        vi.advanceTimersByTime(roundUpToSixteen(500));
+        expect(cb).toHaveBeenCalledTimes(0);
+        cb.mockClear();
+        expect(te.runningState).toBe("afterUntyping");
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("cycleStart");
+
+        te.dispose();
+      });
+    });
+
+    describe("set delayBeforeTyping during delayBeforeTyping test cases", () => {
+      test("scheduled set", () => {});
+      test('immediate set - with "now" === true', () => {});
+      test("concurrent scheduled set", () => {});
+      test('concurrent immediate set - with "now" === true', () => {});
+    });
+
+    describe("set delayAfterTyping during delayAfterTyping test cases", () => {
+      test("scheduled set", () => {});
+      test('immediate set - with "now" === true', () => {});
+      test("concurrent scheduled set", () => {});
+      test('concurrent immediate set - with "now" === true', () => {});
+    });
+
+    describe("set untypeString test cases", () => {
+      test("scheduled set", () => {});
+      test('immediate set - with "now" === true', () => {});
+      test("concurrent scheduled set", () => {});
+      test('concurrent immediate set - with "now" === true', () => {});
+    });
+
+    describe("set showCursor and cursorSymbol test cases", () => {
+      test("scheduled set", () => {});
+      test('immediate set - with "now" === true', () => {});
+      test("concurrent scheduled set", () => {});
+      test('concurrent immediate set - with "now" === true', () => {});
+    });
+
+    describe("set cursorBlinkRate test cases", () => {
+      test("scheduled set", () => {});
+      test('immediate set - with "now" === true', () => {});
+      test("concurrent scheduled set", () => {});
+      test('concurrent immediate set - with "now" === true', () => {});
+    });
+
+    describe("set loop test cases", () => {
       test("scheduled set", () => {});
       test('immediate set - with "now" === true', () => {});
       test("concurrent scheduled set", () => {});

@@ -874,7 +874,11 @@ export class TypingEffect {
       ...this.#createStage("untyping", "afterUntyping", (timestamp) => {
         if (
           timestamp >=
-          this.#lastStringData.changeTimestamp + this.#options.untypingDelay
+          Math.max(
+            this.#lastStageTimestamp,
+            this.#lastStringData.changeTimestamp
+          ) +
+            this.#options.untypingDelay
         ) {
           this.#lastStringData.changeTimestamp = timestamp;
 
