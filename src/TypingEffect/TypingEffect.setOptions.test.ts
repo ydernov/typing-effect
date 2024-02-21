@@ -2031,6 +2031,7 @@ describe(`setOptions method tests`, () => {
 
         te.dispose();
       });
+
       test("concurrent scheduled set", () => {
         const strings = ["first", "second", "third"];
         const cb = vi.fn();
@@ -2110,6 +2111,7 @@ describe(`setOptions method tests`, () => {
 
         te.dispose();
       });
+
       test('concurrent immediate set - with "now" === true', () => {
         const strings = ["first", "second", "third"];
         const cb = vi.fn();
@@ -2192,6 +2194,71 @@ describe(`setOptions method tests`, () => {
         expect(te.runningState).toBe("typing");
 
         vi.advanceTimersByTime(16 * strings[0]!.length);
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+
+        te.dispose();
+      });
+
+      test("setting to the same value should not reset iterator", () => {
+        const strings = ["first", "second", "third"];
+        const cb = vi.fn();
+        const te = new TypingEffect(strings, cb, {
+          delayBeforeTyping: 0,
+          delayAfterTyping: 0,
+          showCursor: false,
+          typingDelay: 0,
+          typingVariation: 0,
+          untypingDelay: 0,
+        }).start();
+
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * strings[0]!.length);
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayAfterTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeUntyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("untyping");
+        vi.advanceTimersByTime(16);
+
+        expect(te.options.untypeString).toBe(true);
+        te.setOptions({ untypeString: true }, true);
+        expect(te.options.untypeString).toBe(true);
+
+        expect(te.runningState).toBe("untyping");
+        vi.advanceTimersByTime(16 * strings[0]!.length);
+
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("afterUntyping");
+        vi.advanceTimersByTime(16);
+
+        expect(te.runningState).toBe("cycleStart");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("delayBeforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("beforeTyping");
+        vi.advanceTimersByTime(16);
+        expect(te.runningState).toBe("typing");
+
+        vi.advanceTimersByTime(16 * strings[1]!.length);
 
         vi.advanceTimersByTime(16);
         expect(te.runningState).toBe("afterTyping");
