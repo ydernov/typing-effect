@@ -290,15 +290,17 @@ export class TypingEffect {
         cursorSymbol,
       };
 
-      this.#options = newOptions;
       if (this.#options.untypeString !== newOptions.untypeString) {
         this.#setIterator(
           substringGeneratorForArray(this.#strings, {
             rewindStringOnFinish: newOptions.untypeString,
           })
         );
+        this.#options = newOptions;
         return true;
       }
+
+      this.#options = newOptions;
     };
 
     const notRunningSetter = () => {
