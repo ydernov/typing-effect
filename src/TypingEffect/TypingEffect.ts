@@ -581,6 +581,7 @@ export class TypingEffect {
     if (
       timestamp >=
       Math.max(
+        this.#lastStringData.changeTimestamp,
         this.#lastStageTimestamp,
         this.#cursorState.lastChangeTimestamp
       ) +

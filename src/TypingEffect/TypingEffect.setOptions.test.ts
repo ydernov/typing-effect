@@ -2274,10 +2274,1259 @@ describe(`setOptions method tests`, () => {
     });
 
     describe("set showCursor and cursorSymbol test cases", () => {
-      test("scheduled set", () => {});
-      test('immediate set - with "now" === true', () => {});
-      test("concurrent scheduled set", () => {});
-      test('concurrent immediate set - with "now" === true', () => {});
+      test.each([
+        {
+          cursorSymbol: "$",
+          desc: "string $",
+          expected: {
+            typing: "$",
+            untyping: "$",
+            blinking: "$",
+          },
+        },
+        {
+          cursorSymbol: {
+            typing: " @type/",
+            untyping: " @untype/",
+            blinking: " @blink/",
+          },
+          desc: "object { typing: type, untyping: untype, blinking: blink }",
+          expected: {
+            typing: " @type/",
+            untyping: " @untype/",
+            blinking: " @blink/",
+          },
+        },
+      ])(
+        `scheduled set with cursorSymbol === $desc`,
+        ({ cursorSymbol, expected }) => {
+          const strings = ["first", "second", "third"];
+          const cb = vi.fn();
+          const te = new TypingEffect(strings, cb, {
+            delayBeforeTyping: 1200,
+            delayAfterTyping: 1200,
+            showCursor: false,
+            typingDelay: 0,
+            typingVariation: 0,
+            untypingDelay: 0,
+          }).start();
+
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith(strings[0]);
+          cb.mockClear();
+
+          te.setOptions({ showCursor: true, cursorSymbol: cursorSymbol });
+          expect(te.options.showCursor).toBe(false);
+          expect(te.options.cursorSymbol.typing).toBe("|");
+          expect(te.options.cursorSymbol.untyping).toBe("|");
+          expect(te.options.cursorSymbol.blinking).toBe("|");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          expect(te.runningState).toBe("idle");
+          cb.mockClear();
+          te.resume();
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith("");
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(expected.typing);
+          expect(te.options.cursorSymbol.untyping).toBe(expected.untyping);
+          expect(te.options.cursorSymbol.blinking).toBe(expected.blinking);
+
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // twice here because blinking starts w/o cursor
+          // previous string state was empty string, thus 1st callback call here is ignored
+          expect(cb).toHaveBeenCalledTimes(2);
+          expect(cb).toHaveBeenNthCalledWith(1, expected.blinking);
+          expect(cb).toHaveBeenNthCalledWith(2, "");
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[1]!.length);
+          expect(cb).toHaveBeenLastCalledWith(strings[1] + expected.typing);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, strings[1]);
+          expect(cb).toHaveBeenNthCalledWith(2, strings[1] + expected.blinking);
+          expect(cb).toHaveBeenNthCalledWith(3, strings[1]);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          vi.advanceTimersByTime(16 * 3);
+          expect(cb).toHaveBeenLastCalledWith("sec" + expected.untyping);
+          cb.mockClear();
+
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, "sec");
+          expect(cb).toHaveBeenNthCalledWith(2, "sec" + expected.blinking);
+          expect(cb).toHaveBeenNthCalledWith(3, "sec");
+          expect(te.runningState).toBe("idle");
+          cb.mockClear();
+          te.resume();
+
+          vi.advanceTimersByTime(16 * 3);
+          expect(cb).toHaveBeenLastCalledWith(expected.untyping);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+
+          te.dispose();
+        }
+      );
+
+      test.each([
+        {
+          desc: "string",
+          delayBeforeTypingSet: {
+            cursorSymbol: "!",
+            expected: {
+              typing: "!",
+              untyping: "!",
+              blinking: "!",
+            },
+          },
+          delayAfterTypingSet: {
+            cursorSymbol: "@",
+            expected: {
+              typing: "@",
+              untyping: "@",
+              blinking: "@",
+            },
+          },
+          typingSet: {
+            cursorSymbol: "#",
+            expected: {
+              typing: "#",
+              untyping: "#",
+              blinking: "#",
+            },
+          },
+          untypingSet: {
+            cursorSymbol: "$",
+            expected: {
+              typing: "$",
+              untyping: "$",
+              blinking: "$",
+            },
+          },
+          idleSet: {
+            cursorSymbol: "%",
+            expected: {
+              typing: "%",
+              untyping: "%",
+              blinking: "%",
+            },
+          },
+        },
+        {
+          desc: "object",
+          delayBeforeTypingSet: {
+            cursorSymbol: {
+              typing: "!type",
+              untyping: "!untype",
+              blinking: "!blink",
+            },
+            expected: {
+              typing: "!type",
+              untyping: "!untype",
+              blinking: "!blink",
+            },
+          },
+          delayAfterTypingSet: {
+            cursorSymbol: {
+              typing: "@type",
+              untyping: "@untype",
+              blinking: "@blink",
+            },
+            expected: {
+              typing: "@type",
+              untyping: "@untype",
+              blinking: "@blink",
+            },
+          },
+          typingSet: {
+            cursorSymbol: {
+              typing: "#type",
+              untyping: "#untype",
+              blinking: "#blink",
+            },
+            expected: {
+              typing: "#type",
+              untyping: "#untype",
+              blinking: "#blink",
+            },
+          },
+          untypingSet: {
+            cursorSymbol: {
+              typing: "$type",
+              untyping: "$untype",
+              blinking: "$blink",
+            },
+            expected: {
+              typing: "$type",
+              untyping: "$untype",
+              blinking: "$blink",
+            },
+          },
+          idleSet: {
+            cursorSymbol: {
+              typing: "%type",
+              untyping: "%untype",
+              blinking: "%blink",
+            },
+            expected: {
+              typing: "%type",
+              untyping: "%untype",
+              blinking: "%blink",
+            },
+          },
+        },
+      ])(
+        `multiple immediate setters - with "now" === true and cursorSymbol === $desc`,
+        ({
+          delayBeforeTypingSet,
+          delayAfterTypingSet,
+          typingSet,
+          untypingSet,
+          idleSet,
+        }) => {
+          const strings = ["first", "second", "third"];
+          const cb = vi.fn();
+          const te = new TypingEffect(strings, cb, {
+            delayBeforeTyping: 3000,
+            delayAfterTyping: 3000,
+            showCursor: false,
+            typingDelay: 0,
+            typingVariation: 0,
+            untypingDelay: 0,
+          }).start();
+
+          // begining without cursor
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith(strings[0]);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          expect(cb).toHaveBeenCalledTimes(0);
+          expect(te.runningState).toBe("idle");
+          cb.mockClear();
+          te.resume();
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith("");
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1100));
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          // end of no cursor - set while delayBeforeTyping, so about half time no cb calls
+          expect(te.options.showCursor).toBe(false);
+          expect(te.options.cursorSymbol.typing).toBe("|");
+          expect(te.options.cursorSymbol.untyping).toBe("|");
+          expect(te.options.cursorSymbol.blinking).toBe("|");
+          te.setOptions(
+            {
+              showCursor: true,
+              cursorSymbol: delayBeforeTypingSet.cursorSymbol,
+            },
+            true
+          );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            delayBeforeTypingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            delayBeforeTypingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            delayBeforeTypingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(
+            roundUpToSixteen(3000 - roundUpToSixteen(1100) - 16)
+          );
+
+          expect(cb).toHaveBeenCalledTimes(4);
+          expect(cb).toHaveBeenNthCalledWith(
+            1,
+            delayBeforeTypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(2, "");
+          expect(cb).toHaveBeenNthCalledWith(
+            3,
+            delayBeforeTypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(4, "");
+          cb.mockClear();
+
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          // let 'half' of typing to have cursor previously set in delayBeforeTyping
+          const secondString_firstPart = Math.floor(strings[1]!.length / 2);
+          const secondString_restPart =
+            strings[1]!.length - secondString_firstPart;
+
+          vi.advanceTimersByTime(16 * secondString_firstPart);
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[1]!.substring(0, secondString_firstPart) +
+              delayBeforeTypingSet.expected.typing
+          );
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: typingSet.cursorSymbol,
+            },
+            true
+          );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            typingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            typingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            typingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(16 * secondString_restPart);
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[1] + typingSet.expected.typing
+          );
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+
+          // let 'half' of delayAfterTyping to have cursor previously set in typing
+          expect(te.runningState).toBe("delayAfterTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1100));
+
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, strings[1]);
+          expect(cb).toHaveBeenNthCalledWith(
+            2,
+            strings[1] + typingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(3, strings[1]);
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: delayAfterTypingSet.cursorSymbol,
+            },
+            true
+          );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            delayAfterTypingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            delayAfterTypingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            delayAfterTypingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(
+            roundUpToSixteen(3000 - roundUpToSixteen(1100) - 16)
+          );
+
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(
+            1,
+            strings[1] + delayAfterTypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(2, strings[1]);
+          expect(cb).toHaveBeenNthCalledWith(
+            3,
+            strings[1] + delayAfterTypingSet.expected.blinking
+          );
+          cb.mockClear();
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          // let 'half' of untyping to have cursor previously set in delayAfterTyping
+          vi.advanceTimersByTime(16 * secondString_firstPart);
+
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[1]!.substring(0, secondString_firstPart) +
+              delayAfterTypingSet.expected.untyping
+          );
+
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: untypingSet.cursorSymbol,
+            },
+            true
+          );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            untypingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            untypingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            untypingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(16 * secondString_restPart);
+          expect(cb).toHaveBeenLastCalledWith(untypingSet.expected.untyping);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+
+          // uses cursor set in untyping
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[2]!.length);
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[2] + untypingSet.expected.typing
+          );
+          cb.mockClear();
+
+          // uses cursor set in untyping for some amount of idle time
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(1200);
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, strings[2]);
+          expect(cb).toHaveBeenNthCalledWith(
+            2,
+            strings[2] + untypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(3, strings[2]);
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: idleSet.cursorSymbol,
+            },
+            true
+          );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(idleSet.expected.typing);
+          expect(te.options.cursorSymbol.untyping).toBe(
+            idleSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            idleSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(1200);
+          // 2 times because of 336ms of spare blink time from above
+          expect(cb).toHaveBeenCalledTimes(2);
+          expect(cb).toHaveBeenNthCalledWith(
+            1,
+            strings[2] + idleSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(2, strings[2]);
+          cb.mockClear();
+
+          // 1200 - 336 - 512 = 352 time of the last blink
+          // 512 - 352 = 160 rest time untill new blink
+          vi.advanceTimersByTime(160);
+          expect(cb).toHaveBeenCalledTimes(1);
+          expect(cb).toHaveBeenCalledWith(
+            strings[2] + idleSet.expected.blinking
+          );
+          cb.mockClear();
+
+          te.setOptions({ showCursor: false }, true);
+          expect(te.options.showCursor).toBe(false);
+
+          vi.advanceTimersByTime(1200);
+          // no calls because no cursor
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          te.resume();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+
+          te.dispose();
+        }
+      );
+
+      test.each([
+        {
+          cursorSymbol: "$",
+          desc: "string $",
+          expected: {
+            typing: "$",
+            untyping: "$",
+            blinking: "$",
+          },
+        },
+        {
+          cursorSymbol: {
+            typing: " @type/",
+            untyping: " @untype/",
+            blinking: " @blink/",
+          },
+          desc: "object { typing: type, untyping: untype, blinking: blink }",
+          expected: {
+            typing: " @type/",
+            untyping: " @untype/",
+            blinking: " @blink/",
+          },
+        },
+      ])(
+        `concurrent scheduled set with cursorSymbol === $desc`,
+        ({ cursorSymbol, expected }) => {
+          const strings = ["first", "second", "third"];
+          const cb = vi.fn();
+          const te = new TypingEffect(strings, cb, {
+            delayBeforeTyping: 1200,
+            delayAfterTyping: 1200,
+            showCursor: false,
+            typingDelay: 0,
+            typingVariation: 0,
+            untypingDelay: 0,
+          }).start();
+
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith(strings[0]);
+          cb.mockClear();
+
+          te.setOptions({ showCursor: undefined, cursorSymbol: "__" })
+            .setOptions({ showCursor: false, cursorSymbol: "" })
+            .setOptions({ showCursor: true, cursorSymbol: cursorSymbol });
+
+          expect(te.options.showCursor).toBe(false);
+          expect(te.options.cursorSymbol.typing).toBe("|");
+          expect(te.options.cursorSymbol.untyping).toBe("|");
+          expect(te.options.cursorSymbol.blinking).toBe("|");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          expect(te.runningState).toBe("idle");
+          cb.mockClear();
+          te.resume();
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith("");
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(expected.typing);
+          expect(te.options.cursorSymbol.untyping).toBe(expected.untyping);
+          expect(te.options.cursorSymbol.blinking).toBe(expected.blinking);
+
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          // twice here because blinking starts w/o cursor
+          // previous string state was empty string, thus 1st callback call here is ignored
+          expect(cb).toHaveBeenCalledTimes(2);
+          expect(cb).toHaveBeenNthCalledWith(1, expected.blinking);
+          expect(cb).toHaveBeenNthCalledWith(2, "");
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[1]!.length);
+          expect(cb).toHaveBeenLastCalledWith(strings[1] + expected.typing);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, strings[1]);
+          expect(cb).toHaveBeenNthCalledWith(2, strings[1] + expected.blinking);
+          expect(cb).toHaveBeenNthCalledWith(3, strings[1]);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          vi.advanceTimersByTime(16 * 3);
+          expect(cb).toHaveBeenLastCalledWith("sec" + expected.untyping);
+          cb.mockClear();
+
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(roundUpToSixteen(1200));
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, "sec");
+          expect(cb).toHaveBeenNthCalledWith(2, "sec" + expected.blinking);
+          expect(cb).toHaveBeenNthCalledWith(3, "sec");
+          expect(te.runningState).toBe("idle");
+          cb.mockClear();
+          te.resume();
+
+          vi.advanceTimersByTime(16 * 3);
+          expect(cb).toHaveBeenLastCalledWith(expected.untyping);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+
+          te.dispose();
+        }
+      );
+
+      test.each([
+        {
+          desc: "string",
+          delayBeforeTypingSet: {
+            cursorSymbol: "!",
+            expected: {
+              typing: "!",
+              untyping: "!",
+              blinking: "!",
+            },
+          },
+          delayAfterTypingSet: {
+            cursorSymbol: "@",
+            expected: {
+              typing: "@",
+              untyping: "@",
+              blinking: "@",
+            },
+          },
+          typingSet: {
+            cursorSymbol: "#",
+            expected: {
+              typing: "#",
+              untyping: "#",
+              blinking: "#",
+            },
+          },
+          untypingSet: {
+            cursorSymbol: "$",
+            expected: {
+              typing: "$",
+              untyping: "$",
+              blinking: "$",
+            },
+          },
+          idleSet: {
+            cursorSymbol: "%",
+            expected: {
+              typing: "%",
+              untyping: "%",
+              blinking: "%",
+            },
+          },
+        },
+        {
+          desc: "object",
+          delayBeforeTypingSet: {
+            cursorSymbol: {
+              typing: "!type",
+              untyping: "!untype",
+              blinking: "!blink",
+            },
+            expected: {
+              typing: "!type",
+              untyping: "!untype",
+              blinking: "!blink",
+            },
+          },
+          delayAfterTypingSet: {
+            cursorSymbol: {
+              typing: "@type",
+              untyping: "@untype",
+              blinking: "@blink",
+            },
+            expected: {
+              typing: "@type",
+              untyping: "@untype",
+              blinking: "@blink",
+            },
+          },
+          typingSet: {
+            cursorSymbol: {
+              typing: "#type",
+              untyping: "#untype",
+              blinking: "#blink",
+            },
+            expected: {
+              typing: "#type",
+              untyping: "#untype",
+              blinking: "#blink",
+            },
+          },
+          untypingSet: {
+            cursorSymbol: {
+              typing: "$type",
+              untyping: "$untype",
+              blinking: "$blink",
+            },
+            expected: {
+              typing: "$type",
+              untyping: "$untype",
+              blinking: "$blink",
+            },
+          },
+          idleSet: {
+            cursorSymbol: {
+              typing: "%type",
+              untyping: "%untype",
+              blinking: "%blink",
+            },
+            expected: {
+              typing: "%type",
+              untyping: "%untype",
+              blinking: "%blink",
+            },
+          },
+        },
+      ])(
+        `multiple concurrent immediate setters - with "now" === true and cursorSymbol === $desc`,
+        ({
+          delayBeforeTypingSet,
+          delayAfterTypingSet,
+          typingSet,
+          untypingSet,
+          idleSet,
+        }) => {
+          const strings = ["first", "second", "third"];
+          const cb = vi.fn();
+          const te = new TypingEffect(strings, cb, {
+            delayBeforeTyping: 3000,
+            delayAfterTyping: 3000,
+            showCursor: false,
+            typingDelay: 0,
+            typingVariation: 0,
+            untypingDelay: 0,
+          }).start();
+
+          // begining without cursor
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          // no blinking because showCursor is false
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith(strings[0]);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          expect(cb).toHaveBeenCalledTimes(0);
+          expect(te.runningState).toBe("idle");
+          cb.mockClear();
+          te.resume();
+
+          vi.advanceTimersByTime(16 * strings[0]!.length);
+          expect(cb).toHaveBeenLastCalledWith("");
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1100));
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          // end of no cursor - set while delayBeforeTyping, so about half time no cb calls
+          expect(te.options.showCursor).toBe(false);
+          expect(te.options.cursorSymbol.typing).toBe("|");
+          expect(te.options.cursorSymbol.untyping).toBe("|");
+          expect(te.options.cursorSymbol.blinking).toBe("|");
+          te.setOptions(
+            {
+              showCursor: undefined,
+              cursorSymbol: "1",
+            },
+            true
+          )
+            .setOptions(
+              {
+                showCursor: false,
+                cursorSymbol: "2",
+              },
+              true
+            )
+            .setOptions(
+              {
+                showCursor: true,
+                cursorSymbol: delayBeforeTypingSet.cursorSymbol,
+              },
+              true
+            );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            delayBeforeTypingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            delayBeforeTypingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            delayBeforeTypingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(
+            roundUpToSixteen(3000 - roundUpToSixteen(1100) - 16)
+          );
+
+          expect(cb).toHaveBeenCalledTimes(4);
+          expect(cb).toHaveBeenNthCalledWith(
+            1,
+            delayBeforeTypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(2, "");
+          expect(cb).toHaveBeenNthCalledWith(
+            3,
+            delayBeforeTypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(4, "");
+          cb.mockClear();
+
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          // let 'half' of typing to have cursor previously set in delayBeforeTyping
+          const secondString_firstPart = Math.floor(strings[1]!.length / 2);
+          const secondString_restPart =
+            strings[1]!.length - secondString_firstPart;
+
+          vi.advanceTimersByTime(16 * secondString_firstPart);
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[1]!.substring(0, secondString_firstPart) +
+              delayBeforeTypingSet.expected.typing
+          );
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: "3",
+            },
+            true
+          )
+            .setOptions(
+              {
+                cursorSymbol: "4",
+              },
+              true
+            )
+            .setOptions(
+              {
+                cursorSymbol: typingSet.cursorSymbol,
+              },
+              true
+            );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            typingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            typingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            typingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(16 * secondString_restPart);
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[1] + typingSet.expected.typing
+          );
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+          vi.advanceTimersByTime(16);
+
+          // let 'half' of delayAfterTyping to have cursor previously set in typing
+          expect(te.runningState).toBe("delayAfterTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(1100));
+
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, strings[1]);
+          expect(cb).toHaveBeenNthCalledWith(
+            2,
+            strings[1] + typingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(3, strings[1]);
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: "5",
+            },
+            true
+          )
+            .setOptions(
+              {
+                cursorSymbol: "5",
+              },
+              true
+            )
+            .setOptions(
+              {
+                cursorSymbol: delayAfterTypingSet.cursorSymbol,
+              },
+              true
+            );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            delayAfterTypingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            delayAfterTypingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            delayAfterTypingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(
+            roundUpToSixteen(3000 - roundUpToSixteen(1100) - 16)
+          );
+
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(
+            1,
+            strings[1] + delayAfterTypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(2, strings[1]);
+          expect(cb).toHaveBeenNthCalledWith(
+            3,
+            strings[1] + delayAfterTypingSet.expected.blinking
+          );
+          cb.mockClear();
+          expect(te.runningState).toBe("delayAfterTyping");
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("beforeUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("untyping");
+          vi.advanceTimersByTime(16);
+
+          // let 'half' of untyping to have cursor previously set in delayAfterTyping
+          vi.advanceTimersByTime(16 * secondString_firstPart);
+
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[1]!.substring(0, secondString_firstPart) +
+              delayAfterTypingSet.expected.untyping
+          );
+
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: "6",
+            },
+            true
+          )
+            .setOptions(
+              {
+                cursorSymbol: "7",
+              },
+              true
+            )
+            .setOptions(
+              {
+                cursorSymbol: untypingSet.cursorSymbol,
+              },
+              true
+            );
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(
+            untypingSet.expected.typing
+          );
+          expect(te.options.cursorSymbol.untyping).toBe(
+            untypingSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            untypingSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(16 * secondString_restPart);
+          expect(cb).toHaveBeenLastCalledWith(untypingSet.expected.untyping);
+          cb.mockClear();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterUntyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("cycleStart");
+          vi.advanceTimersByTime(16);
+
+          // uses cursor set in untyping
+          expect(te.runningState).toBe("delayBeforeTyping");
+          vi.advanceTimersByTime(roundUpToSixteen(3000));
+          expect(te.runningState).toBe("beforeTyping");
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("typing");
+
+          vi.advanceTimersByTime(16 * strings[2]!.length);
+          expect(cb).toHaveBeenLastCalledWith(
+            strings[2] + untypingSet.expected.typing
+          );
+          cb.mockClear();
+
+          // uses cursor set in untyping for some amount of idle time
+          te.pause();
+          expect(te.runningState).toBe("idle");
+          vi.advanceTimersByTime(1200);
+          expect(cb).toHaveBeenCalledTimes(3);
+          expect(cb).toHaveBeenNthCalledWith(1, strings[2]);
+          expect(cb).toHaveBeenNthCalledWith(
+            2,
+            strings[2] + untypingSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(3, strings[2]);
+          cb.mockClear();
+
+          te.setOptions(
+            {
+              cursorSymbol: "8",
+            },
+            true
+          )
+            .setOptions(
+              {
+                cursorSymbol: "9",
+              },
+              true
+            )
+            .setOptions(
+              {
+                cursorSymbol: idleSet.cursorSymbol,
+              },
+              true
+            );
+
+          expect(te.options.showCursor).toBe(true);
+          expect(te.options.cursorSymbol.typing).toBe(idleSet.expected.typing);
+          expect(te.options.cursorSymbol.untyping).toBe(
+            idleSet.expected.untyping
+          );
+          expect(te.options.cursorSymbol.blinking).toBe(
+            idleSet.expected.blinking
+          );
+
+          vi.advanceTimersByTime(1200);
+          // 2 times because of 336ms of spare blink time from above
+          expect(cb).toHaveBeenCalledTimes(2);
+          expect(cb).toHaveBeenNthCalledWith(
+            1,
+            strings[2] + idleSet.expected.blinking
+          );
+          expect(cb).toHaveBeenNthCalledWith(2, strings[2]);
+          cb.mockClear();
+
+          // 1200 - 336 - 512 = 352 time of the last blink
+          // 512 - 352 = 160 rest time untill new blink
+          vi.advanceTimersByTime(160);
+          expect(cb).toHaveBeenCalledTimes(1);
+          expect(cb).toHaveBeenCalledWith(
+            strings[2] + idleSet.expected.blinking
+          );
+          cb.mockClear();
+
+          te.setOptions({ showCursor: undefined }, true)
+            .setOptions({ showCursor: true }, true)
+            .setOptions({ showCursor: false }, true);
+          expect(te.options.showCursor).toBe(false);
+
+          vi.advanceTimersByTime(1200);
+          // no calls because no cursor
+          expect(cb).toHaveBeenCalledTimes(0);
+          cb.mockClear();
+
+          te.resume();
+
+          vi.advanceTimersByTime(16);
+          expect(te.runningState).toBe("afterTyping");
+
+          te.dispose();
+        }
+      );
     });
 
     describe("set cursorBlinkRate test cases", () => {
