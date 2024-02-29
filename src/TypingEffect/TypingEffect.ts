@@ -1,5 +1,6 @@
 import { substringGeneratorForArray } from "../utils/substringGeneratorForArray";
 import { setIntervalRAF } from "../utils/setIntervalRAF";
+import { mergeWithDefaults } from "../utils/mergeWithDefaults";
 
 type ArGen = typeof substringGeneratorForArray;
 
@@ -66,6 +67,31 @@ type ScheduledCallbacks = Record<
   }[]
 >;
 
+type InternalOptions = Required<Omit<TypingEffectOptions, "cursorSymbol">> & {
+  cursorSymbol: CursorSymbols;
+};
+
+type InternalOptionsPartial = Partial<Omit<InternalOptions, "cursorSymbol">> & {
+  cursorSymbol?: Partial<CursorSymbols>;
+};
+
+const getDefaultOptions = (): InternalOptions => ({
+  typingDelay: 100,
+  untypingDelay: 30,
+  delayBeforeTyping: 1600,
+  delayAfterTyping: 3000,
+  untypeString: true,
+  typingVariation: 100,
+  showCursor: true,
+  cursorSymbol: {
+    typing: "|",
+    untyping: "|",
+    blinking: "|",
+  },
+  cursorBlinkRate: 500,
+  loop: true,
+});
+
 /**
  * Class representing a typing effect.
  * @constructor
@@ -73,34 +99,16 @@ type ScheduledCallbacks = Record<
  * @param {CallbackType} callback - The callback function to be called on each update of the typing animation.
  * @param {TypingEffectOptions} options - The options for the typing effect.
  */
-
-type DefaultOptions = Required<Omit<TypingEffectOptions, "cursorSymbol">> & {
-  cursorSymbol: CursorSymbols;
-};
-
 export class TypingEffect {
-  #options: DefaultOptions = {
-    typingDelay: 100,
-    untypingDelay: 30,
-    delayBeforeTyping: 1600,
-    delayAfterTyping: 3000,
-    untypeString: true,
-    typingVariation: 100,
-    showCursor: true,
-    cursorSymbol: {
-      typing: "|",
-      untyping: "|",
-      blinking: "|",
-    },
-    cursorBlinkRate: 500,
-    loop: true,
-  };
+  #options = getDefaultOptions();
+
+  #optionsCopy = (): InternalOptions => ({
+    ...this.#options,
+    cursorSymbol: { ...this.#options.cursorSymbol },
+  });
 
   get options() {
-    return {
-      ...this.#options,
-      cursorSymbol: { ...this.#options.cursorSymbol },
-    };
+    return this.#optionsCopy();
   }
 
   #iteratorState: {
@@ -266,29 +274,47 @@ export class TypingEffect {
     }
   };
 
-  #setOptions = (options?: TypingEffectOptions, now?: boolean) => {
-    const setterFn = () => {
-      let cursorSymbol = this.#options.cursorSymbol,
-        newOptions: DefaultOptions;
+  #constructOptions = (options?: TypingEffectOptions) => {
+    const localCopy = this.#optionsCopy();
+    const defaultOptions = getDefaultOptions();
 
-      if (typeof options?.cursorSymbol === "string" && options.cursorSymbol) {
-        cursorSymbol = {
-          typing: options.cursorSymbol,
-          untyping: options.cursorSymbol,
-          blinking: options.cursorSymbol,
-        };
-      } else if (typeof options?.cursorSymbol === "object") {
-        cursorSymbol = {
-          ...cursorSymbol,
-          ...options.cursorSymbol,
-        };
+    if (options) {
+      const { cursorSymbol, ...rest } = options;
+      let update: Partial<InternalOptionsPartial> = rest;
+      if (options.hasOwnProperty("cursorSymbol")) {
+        switch (true) {
+          case cursorSymbol === undefined:
+            update.cursorSymbol = {
+              typing: undefined,
+              untyping: undefined,
+              blinking: undefined,
+            };
+            break;
+
+          case typeof cursorSymbol === "object":
+            update.cursorSymbol = cursorSymbol;
+            break;
+
+          default:
+            update.cursorSymbol = {
+              typing: cursorSymbol,
+              untyping: cursorSymbol,
+              blinking: cursorSymbol,
+            };
+            break;
+        }
       }
 
-      newOptions = {
-        ...this.#options,
-        ...options,
-        cursorSymbol,
-      };
+      return mergeWithDefaults(localCopy, update, defaultOptions);
+    } else {
+      return localCopy;
+    }
+  };
+
+  #setOptions = (options?: TypingEffectOptions, now?: boolean) => {
+    const setterFn = () => {
+      const newOptions = this.#constructOptions(options);
+      let setsIterator = false;
 
       if (this.#options.untypeString !== newOptions.untypeString) {
         this.#setIterator(
@@ -296,11 +322,11 @@ export class TypingEffect {
             rewindStringOnFinish: newOptions.untypeString,
           })
         );
-        this.#options = newOptions;
-        return true;
+        setsIterator = true;
       }
 
       this.#options = newOptions;
+      return setsIterator;
     };
 
     const notRunningSetter = () => {
@@ -358,14 +384,6 @@ export class TypingEffect {
         ) {
           let prev = this.#runningState;
 
-          console.group("Timestamp ", timestamp);
-          console.log(
-            "\x1b[32mcurrent runningState - %s; - %s; overrideRunningStateBeforeStageExecution - %s\x1b[0m",
-            this.#runningState,
-            this.concurrentRunningState,
-            this.#overrideRunningStateBeforeStageExecution
-          );
-
           if (this.#overrideRunningStateBeforeStageExecution) {
             this.#runningState = this.#overrideRunningStateBeforeStageExecution;
             this.#overrideRunningStateBeforeStageExecution = null;
@@ -376,12 +394,6 @@ export class TypingEffect {
               timestamp
             );
 
-          console.log(
-            "\x1b[32mcurrent runningState - %s; - %s; overrideRunningStateAfterStageExecution - %s\x1b[0m",
-            this.#runningState,
-            this.concurrentRunningState,
-            this.#overrideRunningStateAfterStageExecution
-          );
           if (this.#overrideRunningStateAfterStageExecution) {
             this.#runningState = this.#overrideRunningStateAfterStageExecution;
             this.#overrideRunningStateAfterStageExecution = null;
@@ -392,12 +404,7 @@ export class TypingEffect {
           } else {
             this.concurrentRunningState = 1;
           }
-
-          console.log("new runningState     -", this.#runningState);
-
-          console.groupEnd();
         } else {
-          console.log('this.#runScheduledCallbacks("arrayFinished");');
           this.#runScheduledCallbacks("arrayFinished");
           if (this.#options.loop) {
             this.#setIterator(
@@ -563,8 +570,6 @@ export class TypingEffect {
 
   #callCallback: CallbackType = (string) => {
     // a verbose check of callback type because optional call (this.callback?.(string)) doesn't work with private fields
-
-    console.log("callCallback", string);
     if (
       typeof this.#callback === "function" &&
       string !== this.#lastStringData.callbackString
@@ -813,15 +818,6 @@ export class TypingEffect {
         if (timestamp >= typingReadyTimestamp) {
           const typingVar = Math.floor(
             Math.random() * this.#options.typingVariation
-          );
-
-          console.log(
-            "typingReadyTimestamp",
-            typingReadyTimestamp,
-            "timestamp",
-            timestamp,
-            "typingVar",
-            typingVar
           );
 
           if (timestamp >= typingReadyTimestamp + typingVar) {
