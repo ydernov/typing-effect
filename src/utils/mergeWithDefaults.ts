@@ -25,7 +25,7 @@ const isArray = (val: unknown): val is [] => {
  * const result = mergeWithDefaults(current, update, defaults);
  * // result will be { name: "John", age: 25, address: { city: "Syracuse", state: "New York" } }
  * // result.pets is the same array as current.pets - result.pets === current.pets
- **/
+ */
 
 const mergeWithDefaults = <Obj extends Record<PropertyKey, unknown>>(
   currentObj: Obj,

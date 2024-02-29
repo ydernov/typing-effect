@@ -19,7 +19,9 @@ export type TypingEffectOptions = {
   delayBeforeTyping?: number;
   /** Delay after string is typed. Defaults to `3000ms.` */
   delayAfterTyping?: number;
-  /** If true, untypes the string after the typing finishes. Defaults to `true`. */
+  /** If true, untypes the string after the typing finishes. Defaults to `true`.
+   * Setting this option restarts cycle from the first string.
+   */
   untypeString?: boolean;
   /** Variation in typing speed. While typing adds a random delay between 0 and `typingVariation` value. Defaults to `100ms`. */
   typingVariation?: number;
@@ -152,6 +154,9 @@ export class TypingEffect {
   }
 
   #setStrings = (strings: string[], now?: boolean) => {
+    if (!Array.isArray(strings)) {
+      throw new Error("Provided strings is not an array.");
+    }
     const setterFn = () => {
       this.#strings = strings;
       if (this.#strings.length > 0) {
@@ -224,6 +229,9 @@ export class TypingEffect {
   }
 
   #setCallback = (callback: CallbackType | null, now?: boolean) => {
+    if (callback !== null && typeof callback !== "function") {
+      throw new Error("Provided callback is not a function or null.");
+    }
     const notRunningSetter = () => {
       this.#callback = callback;
       this.#instanceState = this.#checkInstanceState();
@@ -312,6 +320,13 @@ export class TypingEffect {
   };
 
   #setOptions = (options?: TypingEffectOptions, now?: boolean) => {
+    if (
+      options !== undefined &&
+      (typeof options !== "object" || options === null)
+    ) {
+      throw new Error("Provided options is not an object.");
+    }
+
     const setterFn = () => {
       const newOptions = this.#constructOptions(options);
       let setsIterator = false;
@@ -370,8 +385,6 @@ export class TypingEffect {
     lastChangeTimestamp: 0,
   };
 
-  concurrentRunningState = 1;
-
   #rafLoop: ReturnType<typeof setIntervalRAF> | null = setIntervalRAF(
     (timestamp) => {
       if (
@@ -382,8 +395,6 @@ export class TypingEffect {
           !this.#iteratorState.lastResult.done ||
           this.#runningState === "idle"
         ) {
-          let prev = this.#runningState;
-
           if (this.#overrideRunningStateBeforeStageExecution) {
             this.#runningState = this.#overrideRunningStateBeforeStageExecution;
             this.#overrideRunningStateBeforeStageExecution = null;
@@ -397,12 +408,6 @@ export class TypingEffect {
           if (this.#overrideRunningStateAfterStageExecution) {
             this.#runningState = this.#overrideRunningStateAfterStageExecution;
             this.#overrideRunningStateAfterStageExecution = null;
-          }
-
-          if (prev === this.#runningState) {
-            this.concurrentRunningState++;
-          } else {
-            this.concurrentRunningState = 1;
           }
         } else {
           this.#runScheduledCallbacks("arrayFinished");
@@ -910,6 +915,12 @@ export class TypingEffect {
 
   // ---- Exposed public methods
 
+  /**
+   * Starts or restarts the iteration over strings.
+   * Switches instance state to `running` and running state to `cycleStart`.
+   * @returns current instance
+   * @throws If strings or callback not provided; if called after `dispose`
+   */
   start = this.#constructPublicMethod(
     this.#start,
     "start",
@@ -917,6 +928,11 @@ export class TypingEffect {
     "instance"
   );
 
+  /**
+   * Pauses the iteration and switches running state to `idle`.
+   * @returns current instance
+   * @throws If instance state is not `running`; if called after `dispose`
+   */
   pause = this.#constructPublicMethod(
     this.#pause,
     "pause",
@@ -924,6 +940,11 @@ export class TypingEffect {
     "instance"
   );
 
+  /**
+   * Resumes iteration after pause. Does nothing if not paused.
+   * @returns current instance
+   * @throws If instance state is not `running`; if called after `dispose`
+   */
   resume = this.#constructPublicMethod(
     this.#resume,
     "resume",
@@ -931,14 +952,42 @@ export class TypingEffect {
     "instance"
   );
 
+  /**
+   * Stops iteration. Sets running state to `idle` and instance state to `ready`.
+   * @returns current instance
+   * @throws If called after `dispose`
+   */
   stop = this.#constructPublicMethod(this.#stop, "stop", "any", "instance");
 
+  /**
+   * Jumps to a specific string index within the strings array.
+   *
+   * By default executes before the next string typing/untyping cycle.
+   *
+   * @param stringIndex - The index of the string to jump to. Defaults to current string index.
+   * @param now - An optional boolean indicating whether to execute the jump immediately. Defaults to false.
+   *
+   * @returns current instance
+   * @throws If instance state is not `running`; if called after `dispose`
+   */
   jumpTo = this.#constructPublicMethod(
     this.#jumpTo,
     "jumpTo",
     "running",
     "instance"
   );
+
+  /**
+   * Disposes of the instance, resetting its state and helping to "release" resources.
+   *
+   * This method is used to clean up and release any resources held by the instance,
+   * effectively resetting its state to a disposed state. It cancels any ongoing
+   * animation frames, resets the running state, and clears all internal data structures.
+   * @throws If called after `dispose`
+   *
+   * @remarks
+   * This method should be called when the instance is no longer needed.
+   */
 
   dispose = this.#constructPublicMethod(
     this.#dispose,
@@ -947,6 +996,20 @@ export class TypingEffect {
     "void"
   );
 
+  /**
+   * Sets new array of strings for typing/untyping.
+   * If the instance state is not running, the strings are set immediately.
+   * If running, by default executes setter before the next string typing/untyping cycle.
+   *
+   * @param strings - An array of strings.
+   * @param now - An optional boolean indicating whether to set new strings immediately. Defaults to false.
+   *
+   * @remarks After setting starts typing/untyping cycle from the first string.
+   * Calling with empty array will stop current cycle, set runnig state to `idle` and instance state to `initialized`.
+   * @returns current instance
+   * @throws If provided strings is not an array; if called after `dispose`
+   */
+
   setStrings = this.#constructPublicMethod(
     this.#setStrings,
     "setStrings",
@@ -954,12 +1017,44 @@ export class TypingEffect {
     "instance"
   );
 
+  /**
+   * Sets new callback function.
+   * If the instance state is not running, the callback is set immediately.
+   * If running, by default executes setter before the next string typing/untyping cycle.
+   *
+   * @param callback A function with string argument to be called with string updates.
+   * @param now - An optional boolean indicating whether to set new callback immediately. Defaults to false.
+   *
+   * @remarks
+   * Calling with `null` will stop current cycle, set runnig state to `idle` and instance state to `initialized`.
+   * @returns current instance
+   * @throws If provided `callback` is neither a function or `null`; if called after `dispose`
+   */
   setCallback = this.#constructPublicMethod(
     this.#setCallback,
     "setCallback",
     "any",
     "instance"
   );
+
+  /**
+   * Updates the settings of TypingEffect. Allows full and partial update.
+   * If the instance state is not running, the new options are set immediately.
+   * If running, by default executes setter before the next string typing/untyping cycle.
+   *
+   * @param options An object with new settings.
+   * @param now - An optional boolean indicating whether to set new options immediately. Defaults to false.
+   *
+   * @remarks
+   * Providing explicit undefined for settings' fields will reset them to default value.
+   * @returns current instance
+   * @throws If provided `options` is neither an object or `undefined`; if called after `dispose`
+   *
+   * @example
+   * typingEffect.setOptions({ typingDelay: undefined, delayAfterTyping: 1000 });
+   * // will result in new typingDelay value to be taken from default value
+   * // and delayAfterTyping to be set as 1000
+   */
 
   setOptions = this.#constructPublicMethod(
     this.#setOptions,
@@ -968,8 +1063,22 @@ export class TypingEffect {
     "instance"
   );
 
+  /**
+   * Registers a callback that will be called before the typing of a string starts.
+   *
+   * @param callback - A function that will be called with the current string index as its argument.
+   * @param once - An optional boolean indicating whether the callback should be executed only once. Defaults to false.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
   onBeforeTyping = this.#constructPublicMethod(
     (callback: (stringIndex: number) => void, once = false) => {
+      if (typeof callback !== "function") {
+        throw new Error("Provided callback is not a function.");
+      }
+
       const cbId = this.#scheduleCallback(
         "beforeTyping",
         () => {
@@ -985,8 +1094,22 @@ export class TypingEffect {
     "own"
   );
 
+  /**
+   * Registers a callback that will be called after the typing of a string finishes.
+   *
+   * @param callback - A function that will be called with the current string index as its argument.
+   * @param once - An optional boolean indicating whether the callback should be executed only once. Defaults to false.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
   onAfterTyping = this.#constructPublicMethod(
     (callback: (stringIndex: number) => void, once = false) => {
+      if (typeof callback !== "function") {
+        throw new Error("Provided callback is not a function.");
+      }
+
       const cbId = this.#scheduleCallback(
         "afterTyping",
         () => {
@@ -1002,8 +1125,23 @@ export class TypingEffect {
     "own"
   );
 
+  /**
+   * Registers a callback that will be called before the untyping of a string starts.
+   * Will not be called if `untypeString` option is `false`.
+   *
+   * @param callback - A function that will be called with the current string index as its argument.
+   * @param once - An optional boolean indicating whether the callback should be executed only once. Defaults to false.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
   onBeforeUntyping = this.#constructPublicMethod(
     (callback: (stringIndex: number) => void, once = false) => {
+      if (typeof callback !== "function") {
+        throw new Error("Provided callback is not a function.");
+      }
+
       const cbId = this.#scheduleCallback(
         "beforeUntyping",
         () => {
@@ -1020,8 +1158,23 @@ export class TypingEffect {
     "own"
   );
 
+  /**
+   * Registers a callback that will be called after the untyping of a string finishes.
+   * Will not be called if `untypeString` option is `false`.
+   *
+   * @param callback - A function that will be called with the current string index as its argument.
+   * @param once - An optional boolean indicating whether the callback should be executed only once. Defaults to false.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
   onAfterUntyping = this.#constructPublicMethod(
     (callback: (stringIndex: number) => void, once = false) => {
+      if (typeof callback !== "function") {
+        throw new Error("Provided callback is not a function.");
+      }
+
       const cbId = this.#scheduleCallback(
         "afterUntyping",
         () => {
@@ -1037,8 +1190,22 @@ export class TypingEffect {
     "own"
   );
 
+  /**
+   * Registers a callback that will be called after all strings in the strings array have been processed.
+   *
+   * @param callback - A function to be called when array finishes.
+   * @param once - An optional boolean indicating whether the callback should be executed only once. Defaults to false.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
   onArrayFinished = this.#constructPublicMethod(
     (callback: () => void, once = false) => {
+      if (typeof callback !== "function") {
+        throw new Error("Provided callback is not a function.");
+      }
+
       const cbId = this.#scheduleCallback("arrayFinished", callback, once);
 
       return () => this.#markScheduledCallbackForRemoval("arrayFinished", cbId);
