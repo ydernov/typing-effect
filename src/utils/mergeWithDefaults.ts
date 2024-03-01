@@ -1,9 +1,5 @@
 import type { DeepPartial } from "./types";
 
-const isArray = (val: unknown): val is [] => {
-  return Array.isArray(val);
-};
-
 /**
  * Merges an update object with a default object, and returns a new object.
  * If the property is non-primitive and not in `updateObj` or is undefined, directly links to the value of `currentObj` or `defaultObj respectively.
@@ -52,7 +48,7 @@ const mergeWithDefaults = <Obj extends Record<PropertyKey, unknown>>(
               newObj[propKey] = defaultVal;
             } else {
               switch (true) {
-                case isArray(currentVal) && isArray(updateVal): {
+                case Array.isArray(currentVal) && Array.isArray(updateVal): {
                   newObj[propKey] = structuredClone(
                     updateVal
                   ) as typeof currentVal;
