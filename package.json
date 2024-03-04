@@ -17,7 +17,12 @@
   "keywords": [
     "typescript",
     "typing",
-    "multystring"
+    "multystring",
+    "typing-effect",
+    "browser",
+    "visual-effect",
+    "frontend",
+    "customizable"
   ],
   "author": "Yaroslav Dernov",
   "license": "ISC",

@@ -14,112 +14,33 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#catsDiv {
+.example-block {
+  padding: 1rem 2rem;
 }
 
-/* @keyframes changeBackground {
-  0% {
-    background-color: red;
-    scale: 0 1;
-  }
-  25% {
-    background-color: yellow;
-  }
-  50% {
-    background-color: blue;
-  }
-  75% {
-    background-color: green;
-  }
-  100% {
-    background-color: red;
-    scale: 3 1;
-  }
-} */
-
-/* @keyframes blink {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0;
-  }
-  51% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-  }
-} */
-
 .cursor {
-  background-color: aqua;
+  background-color: #00ffff;
   display: inline-block;
   width: 10px;
-  /* animation-name: changeBackground;
-  animation-duration: 1s;
-  animation-iteration-count: infinite; */
 
   height: 1.4em;
   vertical-align: middle;
 
-  width: 2px;
   height: 1em;
 }
 
-/* .idle {
-  animation-name: blink;
-} */
+.cursor.idle {
+  animation: idleCursorAnimation 2s infinite;
+}
 
-@keyframes blink {
+@keyframes idleCursorAnimation {
   0% {
-    opacity: 1;
+    background-color: #22c55e;
   }
   50% {
-    opacity: 0;
+    background-color: #f43f5e;
   }
   100% {
-    opacity: 1;
-  }
-}
-
-@keyframes move {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(100px);
-  }
-}
-
-.green {
-  animation: colorChangeGreen 2s infinite;
-}
-
-.red {
-  animation: colorChangeRed 2s infinite;
-}
-
-@keyframes colorChangeGreen {
-  0% {
-    background-color: #0f0;
-  }
-  50% {
-    background-color: #00f;
-  }
-  100% {
-    background-color: #0f0;
-  }
-}
-
-@keyframes colorChangeRed {
-  0% {
-    background-color: rgb(251, 255, 3);
-  }
-  50% {
-    background-color: rgb(255, 0, 0);
-  }
-  100% {
-    background-color: rgb(251, 255, 3);
+    background-color: #22c55e;
   }
 }
