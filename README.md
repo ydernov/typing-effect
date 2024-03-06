@@ -41,6 +41,10 @@ Then call start on the instance:
 te.start();
 ```
 
+This results in:
+
+![](/example_demos/first_example.gif)
+
 ## Contributing
 
 Guidelines for contributing to your project.
