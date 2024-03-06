@@ -336,6 +336,17 @@ const removeLogger = te.onArrayFinished(() => {
 removeLogger();
 ```
 
+### dispose
+
+Disposes of the instance, resetting its state and helping to "release" resources. It cancels any ongoing animation frames, resets the running state, and clears all internal data structures. This method should be called when the instance is no longer needed. 
+
+While not mandatory, it may be useful in some cases.
+After calling `dispose`, all subsequent method calls will throw errors.
+
+Usage:
+```js
+te.dispose()
+```
 
 ## Options
 
