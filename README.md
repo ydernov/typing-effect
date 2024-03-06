@@ -189,6 +189,153 @@ te.setOptions({ typingDelay: undefined, delayAfterTyping: 1000 });
 // and delayAfterTyping to be set as 1000
 ```
 
+### onBeforeTyping
+
+Registers a callback that will be called before the typing of a string starts. Returns a function that removes the callback.
+
+Syntax:
+```ts
+onBeforeTyping: (callback: (stringIndex: number) => void, once?: boolean) => () => void;
+```
+
+Has two possible arguments:
+* `callback`: A function that will be called with the current string index as its argument.
+* `once`: Optional boolean. Indicates whether the callback should be executed only once. Defaults to false.
+
+Usage:
+```js
+// logs the index once before typing
+te.onBeforeTyping((index) => {
+  console.log(index);
+}, true);
+
+// logs the index for every string before typing
+const removeLogger = te.onBeforeTyping((index) => {
+  console.log(index);
+});
+
+// removes the above callback
+removeLogger();
+```
+
+### onAfterTyping
+
+Registers a callback that will be called after the typing of a string finishes. Returns a function that removes the callback.
+
+Syntax:
+```ts
+onAfterTyping: (callback: (stringIndex: number) => void, once?: boolean) => () => void;
+```
+
+Has two possible arguments:
+* `callback`: A function that will be called with the current string index as its argument.
+* `once`: Optional boolean. Indicates whether the callback should be executed only once. Defaults to false.
+
+Usage:
+```js
+// logs the index once after typing
+te.onAfterTyping((index) => {
+  console.log(index);
+}, true);
+
+// logs the index for every string after typing
+const removeLogger = te.onAfterTyping((index) => {
+  console.log(index);
+});
+
+// removes the above callback
+removeLogger();
+```
+
+### onBeforeUntyping
+
+Registers a callback that will be called before the untyping of a string starts. Returns a function that removes the callback.
+The callback will not be called if `untypeString` option is `false`.
+
+Syntax:
+```ts
+onBeforeUntyping: (callback: (stringIndex: number) => void, once?: boolean) => () => void;
+```
+
+Has two possible arguments:
+* `callback`: A function that will be called with the current string index as its argument.
+* `once`: Optional boolean. Indicates whether the callback should be executed only once. Defaults to false.
+
+Usage:
+```js
+// logs the index once before untyping
+te.onBeforeUntyping((index) => {
+  console.log(index);
+}, true);
+
+// logs the index for every string before untyping
+const removeLogger = te.onBeforeUntyping((index) => {
+  console.log(index);
+});
+
+// removes the above callback
+removeLogger();
+```
+
+### onAfterUntyping
+
+Registers a callback that will be called after the untyping of a string finishes. Returns a function that removes the callback.
+The callback will not be called if `untypeString` option is `false`.
+
+Syntax:
+```ts
+onAfterUntyping: (callback: (stringIndex: number) => void, once?: boolean) => () => void;
+```
+
+Has two possible arguments:
+* `callback`: A function that will be called with the current string index as its argument.
+* `once`: Optional boolean. Indicates whether the callback should be executed only once. Defaults to false.
+
+Usage:
+```js
+// logs the index once after untyping
+te.onAfterUntyping((index) => {
+  console.log(index);
+}, true);
+
+// logs the index for every string after untyping
+const removeLogger = te.onAfterUntyping((index) => {
+  console.log(index);
+});
+
+// removes the above callback
+removeLogger();
+```
+
+### onArrayFinished
+
+Registers a callback that will be called after all strings in the strings array have been processed. Returns a function that removes the callback.
+
+Syntax:
+```ts
+onArrayFinished: (callback: () => void, once?: boolean) => () => void;
+```
+
+Has two possible arguments:
+* `callback`: A function to be called when array finishes.
+* `once`: Optional boolean. Indicates whether the callback should be executed only once. Defaults to false.
+
+Usage:
+```js
+// logs the message once
+te.onArrayFinished(() => {
+  console.log("all strings were processed");
+}, true);
+
+// logs the message every time array is finished
+const removeLogger = te.onArrayFinished(() => {
+  console.log("all strings were processed");
+});
+
+// removes the above callback
+removeLogger();
+```
+
 
 ## Options
 
