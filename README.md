@@ -131,6 +131,83 @@ te.setStrings(["My new favourite string", "My second favourite string"]);
 te.setStrings(["My new favourite string", "My second favourite string"], true);
 ```
 
+### setCallback
+
+Sets the new callback function. If called before `start` (the instance state is not running), the callback is set immediately. Otherwise, if `now` is not provided, executes the setter before the next string's typing/untyping cycle.
+
+Syntax:
+```ts
+setCallback: (callback: ((string: string) => void) | null, now?: boolean) => this;
+```
+
+Has two possible arguments:
+* `callback`: A function which accepts a string argument.
+* `now`: Optional boolean. Indicates whether to set new callback immediately. Defaults to false.
+
+Usage:
+```js
+// will set new callback after the current string cycle finishes
+te.setCallback((str) => {
+  // do stuff
+});
+
+// will set new callback immediately
+te.setCallback((str) => {
+  // do stuff
+}, true);
+```
+
+Setting the callback to `null` will stop current cycle, set runnig state to `idle` and instance state to `initialized`. You won't be able to start iteration until a function is set as a callback.
+
+
+### setOptions
+
+Updates the settings of TypingEffect instance. Allows full and partial update. If called before `start` (the instance state is not running), the options are set immediately. Otherwise, if `now` is not provided, executes the setter before the next string's typing/untyping cycle.
+
+Providing explicit undefined for settings' fields will reset them to their default values.
+
+Syntax:
+```ts
+setOptions: (options?: TypingEffectOptions, now?: boolean) => this;
+```
+
+Has two possible arguments:
+* `options`: Options object. [About options](#Options).
+* `now`: Optional boolean. Indicates whether to update options immediately. Defaults to false.
+
+Usage:
+```js
+// will update provided options after the current string cycle finishes
+te.setOptions({ typingDelay: 300, cursorBlinkRate: 700 });
+
+// will update options immediately
+te.setOptions({ typingDelay: 300, cursorBlinkRate: 700 }, true);
+
+// explicit undefined
+te.setOptions({ typingDelay: undefined, delayAfterTyping: 1000 });
+// will result in new typingDelay value to reset to default value
+// and delayAfterTyping to be set as 1000
+```
+
+
+## Options
+
+The options object has the following structure:
+```ts
+type TypingEffectOptions = {
+  typingDelay?: number | undefined;
+  untypingDelay?: number | undefined;
+  delayBeforeTyping?: number | undefined;
+  delayAfterTyping?: number | undefined;
+  untypeString?: boolean | undefined;
+  typingVariation?: number | undefined;
+  showCursor?: boolean | undefined;
+  cursorSymbol?: string | Partial<CursorSymbols> | undefined;
+  cursorBlinkRate?: number | undefined;
+  loop?: boolean | undefined;
+};
+```
+
 ## Contributing
 
 Guidelines for contributing to your project.
