@@ -6,7 +6,9 @@ A small TypeScript package that provides the ability to create a typing effect w
 
 ## Installation
 
-Instructions on how to install your project.
+```bash
+npm i typing-effect-ts
+```
 
 ## Usage
 
@@ -43,7 +45,7 @@ te.start();
 
 This results in:
 
-![](/example_demos/first_example.gif)
+<img src="example_demos/first_example.gif"  />
 
 ## API
 
@@ -77,7 +79,7 @@ te.pause();
 ```
 Calling the pause in the middle of typing:
 
-<img src="/example_demos/pause_demo.gif" width="80%" />
+<img src="example_demos/pause_demo.gif" width="80%" />
 
 ### resume
 
@@ -451,12 +453,3 @@ Blink rate when "idle" - after typing or untyping, or during pause. Defaults to 
 `boolean`
 
 Loop to the first string after the last. Defaults to `true`.
-    
-
-## Contributing
-
-Guidelines for contributing to your project.
-
-## License
-
-Information about the license.
