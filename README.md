@@ -451,12 +451,3 @@ Blink rate when "idle" - after typing or untyping, or during pause. Defaults to 
 `boolean`
 
 Loop to the first string after the last. Defaults to `true`.
-    
-
-## Contributing
-
-Guidelines for contributing to your project.
-
-## License
-
-Information about the license.
