@@ -26,7 +26,7 @@
     "ui"
   ],
   "author": "Yaroslav Dernov",
-  "license": "ISC",
+  "license": "Unlicense license",
   "devDependencies": {
     "@vitest/coverage-v8": "^1.1.3",
     "jsdom": "^23.2.0",
