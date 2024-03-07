@@ -364,7 +364,94 @@ type TypingEffectOptions = {
   cursorBlinkRate?: number | undefined;
   loop?: boolean | undefined;
 };
+
+type CursorSymbols = {
+    typing: string;
+    untyping: string;
+    blinking: string;
+};
 ```
+
+### typingDelay
+`number`
+
+Delay between typing each character, in milliseconds. Defaults to `100`ms.
+
+
+### untypingDelay
+`number`
+
+Delay between untyping each character, in milliseconds. Defaults to `30`ms.
+
+ 
+### delayBeforeTyping
+`number`
+
+Delay before starting to type a string, in milliseconds. Defaults to `1600`ms. During this time, if `showCursor` setting is `true`, the callback function will be called with blinking cursor symbol at the rate of `cursorBlinkRate`.
+
+
+### delayAfterTyping
+`number`
+Delay after a string is typed, in milliseconds. Defaults to `3000`ms. During this time, if `showCursor` setting is `true`, the callback function will be called with blinking cursor symbol at the rate of `cursorBlinkRate`.
+
+
+### untypeString
+`boolean`
+
+If true, untypes the string after the typing finishes. Defaults to `true`. If `false`, after `delayAfterTyping` is passed, goes straight to `delayBeforeTyping`, does not trigger `onBeforeUntyping` and `onAfterUntyping`.
+Setting this option with `setOptions` while running restarts cycle from the first string.
+
+
+### typingVariation
+`number`
+
+While typing, a random delay between 0 and the value of `typingVariation` is added, creating a subtle impression of natural typing. Setting to `0`, turns the variation off.
+Defaults to `100`ms.
+
+
+### showCursor
+`boolean`
+
+If true, a cursor symbol is shown. Defaults to `true`.
+
+### cursorSymbol
+`string` | `Partial<CursorSymbols>`
+
+Allows to set the cursor symbol for `typing`, `untyping` and `blinking` (during delays and while paused). If string is passed as value, uses it for all three stages, otherwise allows to set the symbols individualy via object.
+Defaults to `"|"`.
+
+Usage:
+```js
+// will set the cursor to "_" wile typing, untyping and blinking
+te.setOptions({ cursorSymbol: "_" });
+
+// will set only the untyping cursor to "<", leaving the default "|" for typing and blinking
+te.setOptions({
+  cursorSymbol: {
+    untyping: "<"
+  }
+});
+
+// cursor values can be reset to default if set to `undefined`
+// will reset untyping cursor to "|"
+te.setOptions({
+  cursorSymbol: {
+    untyping: undefined
+  }
+}); 
+```
+
+
+### cursorBlinkRate
+`number`
+
+Blink rate when "idle" - after typing or untyping, or during pause. Defaults to `500`ms.
+
+### loop
+`boolean`
+
+Loop to the first string after the last. Defaults to `true`.
+    
 
 ## Contributing
 
