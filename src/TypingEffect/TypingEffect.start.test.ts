@@ -250,7 +250,7 @@ describe("start method tests", () => {
     vi.advanceTimersByTime(16);
     expect(te.runningState).toBe("beforeTyping");
     vi.advanceTimersByTime(16);
-    expect(te.runningState).toBe("typing");
+    expect(te.runningState).toBe("typing_");
 
     vi.advanceTimersByTime(16 * strings[2]!.length);
     expect(callback).toHaveBeenLastCalledWith(strings[2] + "|");
