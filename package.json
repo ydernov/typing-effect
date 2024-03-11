@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "vitest",
     "dev": "vite",
+    "test": "vitest run",
     "coverage": "vitest run --coverage"
   },
   "keywords": [

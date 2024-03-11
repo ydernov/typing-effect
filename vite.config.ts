@@ -6,6 +6,7 @@ export default defineConfig({
     environment: "jsdom",
     coverage: {
       reporter: ["text", "json", "html"],
+      exclude: ["src/main.ts", "**/types.ts", "**/*.d.ts"],
     },
   },
 });
