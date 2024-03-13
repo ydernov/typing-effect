@@ -23,14 +23,20 @@ jobs:
       run: |
         raw=$(git branch -r --contains ${{ github.ref }})
         BRANCH=${raw##*/}
-        
-        echo "Branch is $BRANCH."
-          
         git checkout $BRANCH
+        
+        echo "Branch is $BRANCH"
+        echo "Tag $GITHUB_REF_NAME was originaly added to commit $(git rev-parse HEAD)"
+          
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add package.json
-        git commit -m "Update package.json version to $VERSION"
-        git push
+        git commit -m "Update package.json version to ${{ VERSION }} in branch ${{ BRANCH }}"
+        COMMIT_HASH=$(git rev-parse HEAD)
+        git tag -f $GITHUB_REF_NAME $COMMIT_HASH
+        git push --atomic origin $BRANCH $GITHUB_REF_NAME
+
+        echo "Tag $GITHUB_REF_NAME was linked to a new commit $COMMIT_HASH"
+
 
    
