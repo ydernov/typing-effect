@@ -13,6 +13,7 @@ jobs:
 
     - name: Update package.json version
       run: |
+        git checkout
         VERSION=${GITHUB_REF_NAME#v} # Remove the 'v' prefix
         echo "New version: $VERSION"
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
@@ -21,7 +22,6 @@ jobs:
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git checkout HEAD^
         git add package.json
         git commit -m "Update package.json version to $VERSION"
         git push
