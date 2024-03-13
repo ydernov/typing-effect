@@ -19,8 +19,9 @@ jobs:
 
     - name: Commit and push changes
       run: |
-        git config --global user.name 'GitHub Actions'
-        git config --global user.email 'actions@github.com'
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git checkout HEAD^
         git add package.json
         git commit -m "Update package.json version to $VERSION"
         git push
