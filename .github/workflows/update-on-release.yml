@@ -31,7 +31,7 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add package.json
-        git commit -m "Update package.json version to ${{ VERSION }} in branch ${{ BRANCH }}"
+        git commit -m "Update package.json version to $VERSION in branch $BRANCH"
         COMMIT_HASH=$(git rev-parse HEAD)
         git tag -f $GITHUB_REF_NAME $COMMIT_HASH
         git push --atomic origin $BRANCH $GITHUB_REF_NAME
