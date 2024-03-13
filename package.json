@@ -1,6 +1,6 @@
 {
   "name": "typing-effect-ts",
-  "version": "1.1.6-test",
+  "version": "1.1.9-test",
   "description": "A small TypeScript package that provides the ability to create a typing effect with one or multiple strings.",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
