@@ -36,8 +36,6 @@ jobs:
         echo "Tag $GITHUB_REF_NAME was originaly added to commit $(git rev-parse HEAD)"
 
         
-        git config --list
-        
         
         git add package-lock.json
         git add package.json
