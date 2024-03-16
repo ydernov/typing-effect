@@ -41,7 +41,7 @@ jobs:
         git commit -m "Update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
         COMMIT_HASH=$(git rev-parse HEAD)
         
-        git tag -a -f $GITHUB_REF_NAME $COMMIT_HASH
+        git tag -f $GITHUB_REF_NAME $COMMIT_HASH
         git push --atomic origin $BRANCH $GITHUB_REF_NAME --force
 
         echo "Tag $GITHUB_REF_NAME was linked to a new commit $COMMIT_HASH"
