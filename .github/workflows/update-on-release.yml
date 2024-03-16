@@ -36,7 +36,7 @@ jobs:
         echo "Tag $GITHUB_REF_NAME was originaly added to commit $(git rev-parse HEAD)"
 
         git config user.name github-actions[bot]
-        git config user.email github-actions@github.com
+        git config user.email github-actions[bot]@github.com
         
         git add package-lock.json
         git add package.json
