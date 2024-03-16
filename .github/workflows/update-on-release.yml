@@ -35,7 +35,7 @@ jobs:
         echo "Branch is $BRANCH"
         echo "Tag $GITHUB_REF_NAME was originaly added to commit $(git rev-parse HEAD)"
 
-        git config user.name github-actions
+        git config user.name github-actions[bot]
         git config user.email github-actions@github.com
         
         git add package-lock.json
