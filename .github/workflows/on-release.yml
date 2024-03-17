@@ -9,5 +9,23 @@ jobs:
   set-version-to-tag:
     uses: ./.github/workflows/set-version-to-tag.yml
     with:
-      ref: $GITHUB_REF
-      ref_name: $GITHUB_REF_NAME
+      ref: ${GITHUB_REF}
+      ref_name: ${GITHUB_REF_NAME}
+  
+  set-version-to-tag-2:
+    uses: ./.github/workflows/set-version-to-tag.yml
+    with:
+      ref: ${{GITHUB_REF}}
+      ref_name: ${{GITHUB_REF_NAME}}
+
+  set-version-to-tag-3:
+    uses: ./.github/workflows/set-version-to-tag.yml
+    with:
+      ref: github.ref
+      ref_name: github.ref_name
+
+  set-version-to-tag-4:
+    uses: ./.github/workflows/set-version-to-tag.yml
+    with:
+      ref: ${{github.ref}}
+      ref_name: ${{github.ref_name}}
