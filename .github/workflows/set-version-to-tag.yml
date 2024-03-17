@@ -9,12 +9,21 @@ on:
       ref_name:
         required: true
         type: string
+      ref-name:
+        required: true
+        type: string
         
     
 jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
+      - name: check inputs
+        run: |
+          echo "ref ${{ inputs.ref }}"
+          echo "ref_name ${{ inputs.ref_name }}"
+          echo "ref-name ${{ inputs.ref-name }}"
+        
       - if: ${{ !startsWith( inputs.ref, 'refs/tags/' ) }}
         run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
       
