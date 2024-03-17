@@ -14,6 +14,23 @@ jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
+    
+      - if: startsWith(inputs.ref, 'refs/tags/')
+        run: echo "1 ${{ inputs.ref }} starts with refs/tags"
+
+      - if: startsWith(inputs.ref, 'refs/tags/') != true
+        run: echo "2 ${{ inputs.ref }} doesn't start with refs/tags"
+      
+      - if: ${{ !startsWith(inputs.ref, 'refs/tags/') }}
+        run: echo "3 ${{ inputs.ref }} doesn't start with refs/tags"
+        
+      - if: ${{ startsWith(inputs.ref, 'refs/tags/') != true }}
+        run: echo "4 ${{ inputs.ref }} doesn't start with refs/tags"
+
+      - if: startsWith(inputs.ref_name, 'v')
+        run: echo "${{ inputs.ref_name }} starts with v"
+
+        
       - if: startsWith(inputs.ref, 'refs/tags/') != true
         run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
       
