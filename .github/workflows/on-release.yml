@@ -2,9 +2,12 @@ name: Release workflow
 run-name: Release workflow for ${{ github.ref_name }}
 
 on:
- release:
+  release:
     types: [published]
 
 jobs:
   set-version-to-tag:
     uses: ./.github/workflows/set-version-to-tag.yml
+    with:
+      ref: $GITHUB_REF
+      ref_name: $GITHUB_REF_NAME
