@@ -7,12 +7,6 @@ on:
 
 jobs:
   
-  set-version-to-tag-2:
-    uses: ./.github/workflows/set-version-to-tag.yml
-    with:
-      ref: ${{GITHUB_REF}}
-      ref_name: ${{GITHUB_REF_NAME}}
-
   set-version-to-tag-3:
     uses: ./.github/workflows/set-version-to-tag.yml
     with:
