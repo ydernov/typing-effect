@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:    
       - name: Check that ref is a tag
-        if: ${{ !startsWith(inputs.ref, 'refs/tags/') != true }}
+        if: ${{ !startsWith(inputs.ref, 'refs/tags/') }}
         run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
       
       - uses: actions/checkout@v4
