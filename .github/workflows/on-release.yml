@@ -11,3 +11,4 @@ jobs:
     with:
       ref: $GITHUB_REF
       ref_name: $GITHUB_REF_NAME
+      ref-name: $GITHUB_REF_NAME
