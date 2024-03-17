@@ -23,7 +23,11 @@ jobs:
           echo "ref ${{ inputs.ref }}"
           echo "ref_name ${{ inputs.ref_name }}"
           echo "ref-name ${{ inputs.ref-name }}"
-        
+          echo " ${{ !startsWith( inputs.ref, 'refs/tags/' ) }}"
+          echo " ${{ !startsWith(inputs.ref, 'refs/tags/') }}"
+          echo " ${{ startsWith(inputs.ref, 'refs/tags/') }}"
+          echo " ${{ startsWith(inputs.ref, 'refs/tags/') }}"
+      
       - if: ${{ !startsWith( inputs.ref, 'refs/tags/' ) }}
         run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
       
