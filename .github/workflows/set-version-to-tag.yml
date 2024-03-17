@@ -29,7 +29,7 @@ jobs:
           echo " ${{ startsWith(inputs.ref, 'refs/tags/') }}"
           echo " ${{ ! startsWith(inputs.ref, 'refs/tags/') }}"
 
-          if: "!startsWith(inputs.ref, 'refs/tags/')"
+          echo "!startsWith(inputs.ref, 'refs/tags/')"
 
       
       - if: "!startsWith(inputs.ref, 'refs/tags/')"
