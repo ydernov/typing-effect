@@ -27,8 +27,10 @@ jobs:
           echo " ${{ !startsWith(inputs.ref, 'refs/tags/') }}"
           echo " ${{ startsWith(inputs.ref, 'refs/tags/') }}"
           echo " ${{ startsWith(inputs.ref, 'refs/tags/') }}"
+          echo " ${{ ! startsWith(inputs.ref, 'refs/tags/') }}"
+
       
-      - if: ${{ !startsWith( inputs.ref, 'refs/tags/' ) }}
+      - if: ${{ ! startsWith( inputs.ref, 'refs/tags/' ) }}
         run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
       
       - uses: actions/checkout@v4
