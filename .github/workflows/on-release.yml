@@ -6,14 +6,7 @@ on:
     types: [published]
 
 jobs:
-  
-  set-version-to-tag-3:
-    uses: ./.github/workflows/set-version-to-tag.yml
-    with:
-      ref: github.ref
-      ref_name: github.ref_name
-
-  set-version-to-tag-4:
+  set-version-to-tag:
     uses: ./.github/workflows/set-version-to-tag.yml
     with:
       ref: ${{github.ref}}
