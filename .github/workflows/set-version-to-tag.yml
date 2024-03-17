@@ -25,7 +25,8 @@ jobs:
       - name: Update package.json version
         id: extract_version
         run: |
-          VERSION=${{inputs.ref_name#v}} # Remove the 'v' prefix
+          TAG=${{ inputs.ref_name }}
+          VERSION=${TAG#v} # Remove the 'v' prefix
           echo "New version: $VERSION"
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
           echo "version=$VERSION" >> $GITHUB_OUTPUT
