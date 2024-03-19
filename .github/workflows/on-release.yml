@@ -11,3 +11,9 @@ jobs:
     with:
       ref: ${{github.ref}}
       ref_name: ${{github.ref_name}}
+  
+  publish-to-github-packages:
+    needs: set-version-to-tag
+    uses: ./.github/workflows/publish-to-github-packages.yml
+    with:
+      ref: ${{github.ref}}
