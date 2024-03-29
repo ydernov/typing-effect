@@ -1,7 +1,10 @@
 name: Run tests on push
 run-name: Run tests for ${{ github.ref_name }}
 
-on: push
+on:
+  push:
+    branches-ignore: 
+      - "gh-pages"
 
 jobs:
   build-and-test:
