@@ -20,7 +20,9 @@ jobs:
     steps:
       - name: test echo
         run: |
-          echo "${{ github.ref }} ${{ inputs.ref }} ${{ env.REF }}"
+          echo "github.ref - ${{ github.ref }}"
+          echo "inputs.ref - ${{ inputs.ref }}"
+          echo "env.REF - ${{ env.REF }}"
           exit 1
           
       - uses: actions/checkout@v4
