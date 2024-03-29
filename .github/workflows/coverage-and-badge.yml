@@ -40,7 +40,7 @@ jobs:
             try {
               console.log("process.cwd()", process.cwd());
               console.log("__dirname", __dirname);
-              onst summary = require('./coverage/coverage-summary.json');
+              const summary = require('./coverage/coverage-summary.json');
               
               const coverageKeys = ["lines", "statements", "functions", "branches"];
               const colorRanges = {
