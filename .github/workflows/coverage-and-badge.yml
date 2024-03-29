@@ -31,7 +31,6 @@ jobs:
         run: |
           npm ci
           npm run coverage
-          cd coverage
 
       - name: Create badge config 
         id: create-badge-config
@@ -39,8 +38,10 @@ jobs:
         with:
           script: |
             try {
-              const fs = require('fs');
-              const summary = fs.readFileSync('./coverage-summary.json');
+              console.log("process.cwd()", process.cwd());
+              console.log("__dirname", __dirname);
+              onst summary = require('./coverage/coverage-summary.json');
+              
               const coverageKeys = ["lines", "statements", "functions", "branches"];
               const colorRanges = {
                 0: "red",
@@ -74,7 +75,9 @@ jobs:
             } 
 
       - name: Write config to badge.json 
-        run: echo "${{steps.create-badge-config.outputs.result}}" > badge.json
+        run: |
+          cd coverage
+          echo "${{steps.create-badge-config.outputs.result}}" > badge.json
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
