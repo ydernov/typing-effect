@@ -41,7 +41,7 @@ jobs:
           # | {schemaVersion: "1", label: "Coverage", message: ($tp | tostring + "%"), color: $ranges[$ckey] }
           # ' > badge.json
 
-          cat coverage-summary.json | jq '{ "0": "red", "50": "orange", "60": "yellow", "70": "yellowgreen", "80": "green", "90": "brightgreen" } as $ranges | ([.total.["lines", "statements", "functions", "branches"].pct] | add / length) as $tp | ($ranges | keys | map(select( . <= ($tp | tostring)))[-1]) as $ckey | {schemaVersion: "1", label: "Coverage", message: ($tp | tostring + "%"), color: $ranges[$ckey] }' > badge.json
+          jq '{ "0": "red", "50": "orange", "60": "yellow", "70": "yellowgreen", "80": "green", "90": "brightgreen" } as $ranges | ([.total.["lines", "statements", "functions", "branches"].pct] | add / length) as $tp | ($ranges | keys | map(select( . <= ($tp | tostring)))[-1]) as $ckey | {schemaVersion: "1", label: "Coverage", message: ($tp | tostring + "%"), color: $ranges[$ckey] }' coverage-summary.json > badge.json
 
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
