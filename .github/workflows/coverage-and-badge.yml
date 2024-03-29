@@ -26,23 +26,49 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          
-      - run: npm ci
-
-      - run: npm run coverage
-
-      - name: Create badge config
+    
+      - name: Run coverage
         run: |
+          npm ci
+          npm run coverage
           cd coverage
-          # cat coverage-summary.json | jq '
-          # { "0": "red", "50": "orange", "60": "yellow", "70": "yellowgreen", "80": "green", "90": "brightgreen" } as $ranges 
-          # | ([.total.["lines", "statements", "functions", "branches"].pct] | add / length) as $tp 
-          # | ($ranges | keys | map(select( . <= ($tp | tostring)))[-1]) as $ckey 
-          # | {schemaVersion: "1", label: "Coverage", message: ($tp | tostring + "%"), color: $ranges[$ckey] }
-          # ' > badge.json
 
-          jq '{ "0": "red", "50": "orange", "60": "yellow", "70": "yellowgreen", "80": "green", "90": "brightgreen" } as $ranges | ([.total.["lines", "statements", "functions", "branches"].pct] | add / length) as $tp | ($ranges | keys | map(select( . <= ($tp | tostring)))[-1]) as $ckey | {schemaVersion: "1", label: "Coverage", message: ($tp | tostring + "%"), color: $ranges[$ckey] }' coverage-summary.json > badge.json
+      - name: Create badge config 
+        id: create-badge-config
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = require("./coverage-summary.json");
+            const coverageKeys = ["lines", "statements", "functions", "branches"];
+            const colorRanges = {
+              0: "red",
+              50: "orange",
+              60: "yellow",
+              70: "yellowgreen",
+              80: "green",
+              90: "brightgreen",
+            };
+            
+            const totalObj = JSON.parse(summary).total;
+            const total =
+              coverageKeys.reduce((prev, key) => prev + totalObj[key]?.pct || 0, 0) /
+              coverageKeys.length;
 
+            const colorKey = (
+              Object.keys(colorRanges)
+                .filter((key) => Number(key) <= total)
+                .pop() || 0
+            ).toString();
+
+            return {
+              schemaVersion: "1",
+              label: "Coverage",
+              message: total + "%",
+              color: colorRanges[colorKey],
+            };
+
+      - name: Write config to badge.json 
+        run: echo "${{steps.create-badge-config.outputs.result}}" > badge.json
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
