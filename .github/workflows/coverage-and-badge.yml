@@ -15,12 +15,12 @@ env:
 jobs:
   create-coverage:
     runs-on: ubuntu-latest
-    env: 
-      PAGES_TARGET: ${{ startsWith(env.REF, 'refs/tags/') && 'release' || 'main' }}
+    # env: 
+      # PAGES_TARGET: ${{ startsWith(env.REF, 'refs/tags/') && 'release' || 'main' }}
     steps:
       - name: test echo
         run: |
-          echo "${{ github.ref }} ${{ inputs.ref }} ${{ enf.REF }}"
+          echo "${{ github.ref }} ${{ inputs.ref }} ${{ env.REF }}"
           exit 1
           
       - uses: actions/checkout@v4
