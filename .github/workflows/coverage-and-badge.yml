@@ -63,11 +63,11 @@ jobs:
           git push --atomic origin gh-pages
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: artifacts
-          path: artifacts
+          path: ./coverage
           if-no-files-found: error
           retention-days: 1
 
