@@ -8,16 +8,21 @@ on:
         type: string
         
   workflow_dispatch:
-    
+
+env: 
+  REF: ${{ github.ref || inputs.ref }}
+  
 jobs:
   create-coverage:
     runs-on: ubuntu-latest
     env: 
-      REF: ${{ github.ref || inputs.ref }}
       PAGES_TARGET: ${{ startsWith(env.REF, 'refs/tags/') && 'release' || 'main' }}
     steps:
       - name: test echo
-        run: echo "${{ github.ref }} ${{ inputs.ref }} ${{ enf.REF }}"
+        run: |
+          echo "${{ github.ref }} ${{ inputs.ref }} ${{ enf.REF }}"
+          exit 1
+          
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.REF }}
