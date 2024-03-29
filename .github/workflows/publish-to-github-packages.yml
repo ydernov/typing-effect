@@ -1,17 +1,25 @@
 name: Publish package to GitHub Packages
 
-on: workflow_call
+on: 
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
 
 jobs:
-  triage:
+  build-n-publish:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
     - uses: actions/setup-node@v4
       with:
         node-version: '20'
         registry-url: 'https://npm.pkg.github.com'
     - run: npm ci
+    - run: npm run build
     - run: npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

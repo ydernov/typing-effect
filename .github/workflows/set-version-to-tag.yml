@@ -1,50 +1,61 @@
 name: Update Version in package.json on Release
 
-on:
- release:
-    types: [published]
+on: 
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      ref_name:
+        required: true
+        type: string
     
 jobs:
- update-version:
+  update-version:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
+    steps:    
+      - name: Check that ref is a tag
+        if: ${{ !startsWith(inputs.ref, 'refs/tags/') }}
+        run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
+      
+      - uses: actions/checkout@v4
+        with:
           fetch-depth: 0
 
-    - name: Update package.json version
-      id: extract_version
-      run: |
-        VERSION=${GITHUB_REF_NAME#v} # Remove the 'v' prefix
-        echo "New version: $VERSION"
-        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Update package.json version
+        id: extract_version
+        run: |
+          TAG=${{ inputs.ref_name }}
+          VERSION=${TAG#v} # Remove the 'v' prefix
+          echo "New version: $VERSION"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - run: npm i
 
-    - uses: actions/setup-node@v4
-      with:
-       node-version: 20
-    - run: npm i
+      - name: Commit and push changes
+        run: |
+          raw=$(git branch -r --contains ${{ inputs.ref }})
+          BRANCH=${raw##*/}
+          git checkout $BRANCH
+          
+          echo "Tag ${{ inputs.ref_name }} was originaly added to commit $(git rev-parse HEAD)"
+  
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add package-lock.json package.json
+          git commit -m "Update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
+          COMMIT_HASH=$(git rev-parse HEAD)
+          
+          git tag -f ${{ inputs.ref_name }} $COMMIT_HASH
+          git push --atomic origin $BRANCH ${{ inputs.ref_name }} --force
 
-    - name: Commit and push changes
-      run: |
-        raw=$(git branch -r --contains ${{ github.ref }})
-        BRANCH=${raw##*/}
-        git checkout $BRANCH
-        
-        echo "Tag $GITHUB_REF_NAME was originaly added to commit $(git rev-parse HEAD)"
-
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        
-        git add package-lock.json package.json
-        git commit -m "Update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
-        COMMIT_HASH=$(git rev-parse HEAD)
-        
-        git tag -f $GITHUB_REF_NAME $COMMIT_HASH
-        git push --atomic origin $BRANCH $GITHUB_REF_NAME --force
-
-        echo "Tag $GITHUB_REF_NAME was linked to a new commit $COMMIT_HASH"
+          echo "Tag ${{ inputs.ref_name }} was linked to a new commit $COMMIT_HASH"
 
 
    
