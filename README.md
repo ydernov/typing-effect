@@ -1,5 +1,13 @@
 # Typing Effect
 
+| Source | Tests | Coverage |
+|--------|-------|----------|
+| [![main branch](https://img.shields.io/github/package-json/v/ydernov/typing-effect/main?logo=github&label=main)](https://github.com/ydernov/typing-effect/tree/main)   | [![Tests main](https://github.com/ydernov/typing-effect/actions/workflows/test-on-push.yml/badge.svg?branch=main)](https://github.com/ydernov/typing-effect/actions/workflows/test-on-push.yml?query=branch%3Amain) | [![Coverage main](https://img.shields.io/endpoint?url=https%3A%2F%2Fydernov.github.io%2Ftyping-effect%2Fmain%2Fcoverage-badge.json)](https://ydernov.github.io/typing-effect/main/index.html) |
+| [![Release](https://img.shields.io/github/v/release/ydernov/typing-effect?label=Release&logo=github)](https://github.com/ydernov/typing-effect/releases/latest) | | [![Coverage release](https://img.shields.io/endpoint?url=https%3A%2F%2Fydernov.github.io%2Ftyping-effect%2Frelease%2Fcoverage-badge.json)](https://ydernov.github.io/typing-effect/release/index.html) |
+
+
+
+
 ## Description
 
 A small TypeScript package that provides the ability to create a typing effect with one or multiple strings. It is intended for in-browser use.
