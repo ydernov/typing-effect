@@ -17,11 +17,14 @@ jobs:
   create-coverage:
     runs-on: ubuntu-latest
     env: 
-      PAGES_TARGET: ${{ startsWith(inputs.ref, 'refs/tags/') && 'release' || 'main' }}
-    steps:    
+      REF: ${{ github.ref || inputs.ref }}
+      PAGES_TARGET: ${{ startsWith(env.REF, 'refs/tags/') && 'release' || 'main' }}
+    steps:
+      - name: test echo
+        run: echo "${{ github.ref }} ${{ inputs.ref }} ${{ enf.REF }}"
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ env.REF }}
           fetch-depth: 0
           
       - uses: actions/setup-node@v4
