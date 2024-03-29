@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        required: true
         type: string
+        default: ${{github.ref}}
     
 jobs:
   create-coverage:
