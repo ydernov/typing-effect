@@ -21,6 +21,8 @@ on:
         type: string
         default: 'TAG_NAME'
     
+env:
+    GH_TOKEN: ${{ github.token }}
     
 jobs:
   update-version:
