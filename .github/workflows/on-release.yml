@@ -11,7 +11,13 @@ jobs:
     with:
       ref: ${{github.ref}}
       ref_name: ${{github.ref_name}}
-  
+
+  create-and-publish-coverage:
+    needs: set-version-to-tag
+    uses: ./.github/workflows/coverage-and-badge.yml
+    with:
+      ref: ${{github.ref}}
+    
   publish-to-github-packages:
     needs: set-version-to-tag
     uses: ./.github/workflows/publish-to-github-packages.yml
