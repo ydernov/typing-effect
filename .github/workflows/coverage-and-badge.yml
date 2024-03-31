@@ -74,8 +74,10 @@ jobs:
       - name: Write config to badge.json 
         run: |
           cd coverage
-          echo "${{steps.create-badge-config.outputs.result}}"
-          echo "{${{steps.create-badge-config.outputs.result}}}" > badge.json
+          echo "{${{steps.create-badge-config.outputs.result}}}"
+          echo "{ ${{steps.create-badge-config.outputs.result}} }"
+          echo "${{{steps.create-badge-config.outputs.result}}}"
+          echo {"${{steps.create-badge-config.outputs.result}}"} > badge.json
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
@@ -83,15 +85,6 @@ jobs:
           TARGET_DIR="${{ env.PAGES_TARGET }}"
           mkdir "$TARGET_DIR"
           find . -mindepth 1 -maxdepth 1 ! -name "$TARGET_DIR" -exec mv {} "$TARGET_DIR" \;
-          echo 'Current directory'
-          pwd
-          echo 'Current directory contents'
-          ls
-          cd "$TARGET_DIR"
-          echo 'Current directory'
-          pwd
-          echo 'Current directory contents'
-          ls
           
       - name: Commit and push changes
         run: |
