@@ -36,7 +36,6 @@ jobs:
         id: create-badge-config
         uses: actions/github-script@v7
         with:
-          result-encoding: string
           script: |
             try {
               const path = require('path');
@@ -75,7 +74,8 @@ jobs:
       - name: Write config to badge.json 
         run: |
           cd coverage
-          echo "${{steps.create-badge-config.outputs.result}}" > badge.json
+          echo "${{steps.create-badge-config.outputs.result}}"
+          echo "{${{steps.create-badge-config.outputs.result}}}" > badge.json
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
