@@ -8,6 +8,7 @@
 
 
 
+
 ## Description
 
 A small TypeScript package that provides the ability to create a typing effect with one or multiple strings. It is intended for in-browser use.
