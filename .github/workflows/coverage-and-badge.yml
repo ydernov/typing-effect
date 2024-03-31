@@ -61,7 +61,7 @@ jobs:
               const clampedTotal = parseFloat(total.toFixed(1));
 
               return JSON.stringify({
-                schemaVersion: "1",
+                schemaVersion: 1,
                 label: "Coverage",
                 message: clampedTotal + "%",
                 color: colorRanges[colorKey],
