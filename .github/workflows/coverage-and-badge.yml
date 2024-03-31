@@ -82,6 +82,9 @@ jobs:
       - name: Commit and push changes
         run: |
           cd ../
+          git remote -v
+          git fetch origin gh-pages
+          git reset origin/gh-pages
           git checkout gh-pages
   
           git config user.name "github-actions[bot]"
@@ -89,7 +92,6 @@ jobs:
           
           git add coverage
           git commit -m "Run coverage and created badge for ${{ env.PAGES_TARGET }}"
-          
           git push --atomic origin gh-pages
 
       - name: Upload artifacts
