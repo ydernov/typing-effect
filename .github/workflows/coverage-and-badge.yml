@@ -58,12 +58,14 @@ jobs:
                   .pop() || 0
               ).toString();
 
-              return {
+              const clampedTotal = parseFloat(total.toFixed(1));
+
+              return JSON.stringify({
                 schemaVersion: "1",
                 label: "Coverage",
-                message: total + "%",
+                message: clampedTotal + "%",
                 color: colorRanges[colorKey],
-              };
+              });
             } catch(err) {
               core.error("Error while creating JSON for coverage badge")
               core.setFailed(err)
