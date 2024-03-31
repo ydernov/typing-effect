@@ -75,7 +75,7 @@ jobs:
         run: |
           cd coverage
           BADGE_JSON="${{ steps.create-badge-config.outputs.result }}"
-          echo {$BADGE_JSON} > badge.json
+          echo $BADGE_JSON > badge.json
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
