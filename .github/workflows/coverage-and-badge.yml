@@ -36,6 +36,7 @@ jobs:
         id: create-badge-config
         uses: actions/github-script@v7
         with:
+          result-encoding: string
           script: |
             try {
               const path = require('path');
