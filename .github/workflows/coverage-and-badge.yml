@@ -80,6 +80,10 @@ jobs:
       
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
+          echo 'Current directory'
+          pwd
+          echo 'Current directory contents'
+          ls
           TARGET_DIR="${{ env.PAGES_TARGET }}"
           find . -mindepth 1 -maxdepth 1 ! -name "$TARGET_DIR" -exec mv {} "$TARGET_DIR" \;
           echo 'Current directory'
