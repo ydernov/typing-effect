@@ -39,7 +39,7 @@ jobs:
           script: |
             try {
               const path = require('path');
-              const summary = require(path.join(path.resolve(), '/coverage/coverage-summary.json'));
+              const summaryTotal = require(path.join(path.resolve(), '/coverage/coverage-summary.json')).total;
               const coverageKeys = ["lines", "statements", "functions", "branches"];
               const colorRanges = {
                 0: "red",
@@ -49,11 +49,8 @@ jobs:
                 80: "green",
                 90: "brightgreen",
               };
-            
-              const totalObj = JSON.parse(summary).total;
-              const total =
-                coverageKeys.reduce((prev, key) => prev + totalObj[key]?.pct || 0, 0) /
-                coverageKeys.length;
+
+              const total = coverageKeys.reduce((prev, key) => prev + summaryTotal[key]?.pct || 0, 0) / coverageKeys.length;
                 
               const colorKey = (
                 Object.keys(colorRanges)
