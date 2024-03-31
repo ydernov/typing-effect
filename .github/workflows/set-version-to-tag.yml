@@ -9,6 +9,18 @@ on:
       ref_name:
         required: true
         type: string
+        
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
+        default: 'refs/tags/TAG_NAME'
+      ref_name:
+        required: true
+        type: string
+        default: 'TAG_NAME'
+    
     
 jobs:
   update-version:
@@ -39,23 +51,38 @@ jobs:
 
       - name: Commit and push changes
         run: |
+          TAG=${{ inputs.ref_name }}
           raw=$(git branch -r --contains ${{ inputs.ref }})
           BRANCH=${raw##*/}
-          git checkout $BRANCH
+          LOCAL_BRANCH="$BRANCH-version-bump-$TAG"
+
+          PR_TITLE="chore (automated): update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
           
-          echo "Tag ${{ inputs.ref_name }} was originaly added to commit $(git rev-parse HEAD)"
+          git checkout $BRANCH
+          git branch $LOCAL_BRANCH
+          git switch $LOCAL_BRANCH
+          
+          echo "Tag $TAG was originaly added to commit $(git rev-parse HEAD)"
   
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
           git add package-lock.json package.json
-          git commit -m "Update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
+          git commit -m "$PR_TITLE"
           COMMIT_HASH=$(git rev-parse HEAD)
-          
-          git tag -f ${{ inputs.ref_name }} $COMMIT_HASH
-          git push --atomic origin $BRANCH ${{ inputs.ref_name }} --force
 
-          echo "Tag ${{ inputs.ref_name }} was linked to a new commit $COMMIT_HASH"
+          git push origin $LOCAL_BRANCH
+          
+          gh pr create --title "$PR_TITLE" --body "This is an automated PR to update package.json and package-lock.json version" --base "$BRANCH"
+          gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
+
+
+          gh release edit "$TAG" --target "$COMMIT_HASH"
+          
+          # git tag -f ${{ inputs.ref_name }} $COMMIT_HASH
+          # git push --atomic origin $BRANCH ${{ inputs.ref_name }} --force
+
+          echo "Tag $TAG was linked to a new commit $COMMIT_HASH"
 
 
    
