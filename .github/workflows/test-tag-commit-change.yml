@@ -20,7 +20,7 @@ jobs:
       - name: Commit and push changes
         run: |
 
-          gh release edit 'v1.2.0' --target 9cd9fb8f773257d6e3bb702398ae98f7dccffae4
+          gh release edit 'v1.2.0' --target 4c998f5a777bcc66bafcda24df324ee3e1081d69
 
 
    
