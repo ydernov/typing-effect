@@ -38,13 +38,8 @@ jobs:
         with:
           script: |
             try {
-              // console.log("__dirname", __dirname);
-              console.log("process.cwd()", process.cwd());
               const path = require('path');
-
-              console.log("path.resolve()", path.resolve());
-              
-              const summary = __original_require__('./coverage/coverage-summary.json');
+              const summary = require(path.join(path.resolve(), '/coverage/coverage-summary.json'));
               const coverageKeys = ["lines", "statements", "functions", "branches"];
               const colorRanges = {
                 0: "red",
