@@ -23,3 +23,9 @@ jobs:
     uses: ./.github/workflows/publish-to-github-packages.yml
     with:
       ref: ${{github.ref}}
+
+  publish-to-npm:
+    needs: set-version-to-tag
+    uses: ./.github/workflows/publish-to-npm.yml
+    with:
+      ref: ${{github.ref}}
