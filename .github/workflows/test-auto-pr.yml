@@ -48,16 +48,16 @@ jobs:
           echo 'Creating PR...'
           PR_URL=$(gh pr create --title "$PR_TITLE" --body "This is an automated PR" --base "$BRANCH")
           echo "PR created, pr url - $PR_URL"
-          echo 'Marker - before running gh pr checks'
-          gh pr status
-          gh pr checks $PR_URL --watch
-          echo 'Marker - After running gh pr checks'
+          # echo 'Marker - before running gh pr checks'
+          # gh pr status
+          # gh pr checks $PR_URL --watch
+          # echo 'Marker - After running gh pr checks'
           
 
           echo "Merging PR - $PR_URL"
           gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
-          gh pr status
+          # gh pr status
           
 
 
