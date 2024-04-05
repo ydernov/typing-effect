@@ -14,10 +14,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update package.json version
+      - name: Update test-for-commits.txt
         id: get_new_lastLine
         run: |
-          LAST_LINE=$(tail -1 text.txt)
+          LAST_LINE=$(tail -1 test-for-commits.txt)
           NEW_LAST_LINE=$((LAST_LINE + 1))
           echo $NEW_LAST_LINE >> test-for-commits.txt
           echo "last_line=$NEW_LAST_LINE" >> $GITHUB_OUTPUT
