@@ -7,7 +7,7 @@ env:
     GH_TOKEN: ${{ github.token }}
     
 jobs:
-  update-version:
+  update-test-for-commits:
     runs-on: ubuntu-latest
     steps:    
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
         run: |
           LAST_LINE=${{ steps.get_new_lastLine.outputs.last_line }}
           BRANCH=$(git branch --show-current)
-          LOCAL_BRANCH="$BRANCH-append-to-test-for-commits"
+          LOCAL_BRANCH="autocreated-$BRANCH"
           
           PR_TITLE="chore (automated): update test-for-commits.txt, append $LAST_LINE in branch $BRANCH"
           
@@ -44,17 +44,20 @@ jobs:
           echo "Local commit sha - $COMMIT_HASH"
           
           git push origin $LOCAL_BRANCH
-          
+
+          echo 'Creating PR...'
           PR_URL=$(gh pr create --title "$PR_TITLE" --body "This is an automated PR" --base "$BRANCH")
+          echo "PR created, pr url - $PR_URL"
+          gh pr status
+
+          echo "Merging PR - $PR_URL"
           gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
-          
-
-          echo 'MArker - before running gh pr checks'
+          echo 'Marker - before running gh pr checks'
           gh pr status
           
           gh pr checks $PR_URL --watch
-          echo 'MArker - After running gh pr checks'
+          echo 'Marker - After running gh pr checks'
 
           gh pr status
 
