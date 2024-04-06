@@ -53,19 +53,34 @@ jobs:
           # gh pr checks $PR_URL --watch
           # echo 'Marker - After running gh pr checks'
           
-          gh pr view $PR_URL --json state
           
-          sleep 10
+          # echo "Merging PR - $PR_URL"
+          # gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
-          gh pr view $PR_URL --json state --template '{{.state}}'
-          
-          echo "Merging PR - $PR_URL"
-          gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
-
-          gh pr view $PR_URL --json mergeCommit,mergeStateStatus,mergeable,mergedAt,potentialMergeCommit,state,statusCheckRollup
+          CURRENT_TIME=0
+          while [[ "$(gh pr view $PR_URL --json state --template '{{.state}}')" != 'MERGED' ]];
+           do
+              if [ $((CURRENT_TIME -lt 60)) ]; then
+                  echo "Still not merged: retrying in 10 seconds...\n" 
+                  CURRENT_TIME=$((CURRENT_TIME+10))
+                  sleep 10
+              else 
+                  echo "::error::The wait time exceeded timeut of 60 seconds"
+                  exit 1
+              fi
+          done
         
 
           MERGE_COMMIT_HASH=$(git rev-parse HEAD)
+          echo "git rev-parse HEAD - $(git rev-parse HEAD)"
+          echo "git fetch $BRANCH"
+          git fetch $BRANCH
+
+          echo "git rev-parse HEAD - $(git rev-parse HEAD)"
+
+          echo "git rev-parse origin/$BRANCH - $(git rev-parse origin/$BRANCH)"
+          
+
 
           echo "Local comit sha - $COMMIT_HASH"
           echo "Merge comit sha - $MERGE_COMMIT_HASH"
