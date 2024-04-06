@@ -57,6 +57,8 @@ jobs:
           echo "Merging PR - $PR_URL"
           gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
+          gh pr view $PR_URL
+
           MERGE_COMMIT_HASH=$(git rev-parse HEAD)
 
           echo "Local comit sha - $COMMIT_HASH"
