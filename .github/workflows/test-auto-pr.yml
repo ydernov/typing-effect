@@ -55,7 +55,7 @@ jobs:
           
 
           echo "Merging PR - $PR_URL"
-          gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
+          # gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
           gh pr view $PR_URL
 
