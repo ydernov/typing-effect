@@ -73,8 +73,7 @@ jobs:
 
           MERGE_COMMIT_HASH=$(git rev-parse HEAD)
           echo "git rev-parse HEAD - $(git rev-parse HEAD)"
-          echo "git fetch $BRANCH"
-          git fetch $BRANCH
+          
 
           echo "git rev-parse HEAD - $(git rev-parse HEAD)"
 
