@@ -53,14 +53,11 @@ jobs:
           # gh pr checks $PR_URL --watch
           # echo 'Marker - After running gh pr checks'
           
-          sleep 10
-
           gh pr view $PR_URL --json state
-
           
           sleep 10
 
-          gh pr view $PR_URL --json state --template '.state'
+          gh pr view $PR_URL --json state --template '{{.state}}'
           
           echo "Merging PR - $PR_URL"
           gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
