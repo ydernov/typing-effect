@@ -55,8 +55,12 @@ jobs:
           
           sleep 10
 
-          gh pr view $PR_URL --json mergeCommit,mergeStateStatus,mergeable,mergedAt,potentialMergeCommit,state,statusCheckRollup
+          gh pr view $PR_URL --json state
+
+          
           sleep 10
+
+          gh pr view $PR_URL --json state --template '.state'
           
           echo "Merging PR - $PR_URL"
           gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
