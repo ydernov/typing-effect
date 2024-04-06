@@ -53,15 +53,16 @@ jobs:
           # gh pr checks $PR_URL --watch
           # echo 'Marker - After running gh pr checks'
           
-
+          sleep 10
 
           gh pr view $PR_URL --json mergeCommit,mergeStateStatus,mergeable,mergedAt,potentialMergeCommit,state,statusCheckRollup
-          sleep 60
+          sleep 10
           
           echo "Merging PR - $PR_URL"
           gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
           gh pr view $PR_URL --json mergeCommit,mergeStateStatus,mergeable,mergedAt,potentialMergeCommit,state,statusCheckRollup
+        
 
           MERGE_COMMIT_HASH=$(git rev-parse HEAD)
 
