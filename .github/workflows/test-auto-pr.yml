@@ -69,20 +69,19 @@ jobs:
                   exit 1
               fi
           done
+
+          MRG_C=$(gh pr view $PR_URL --json mergeCommit --template '{{.mergeCommit.oid}}')
         
 
           MERGE_COMMIT_HASH=$(git rev-parse HEAD)
           echo "git rev-parse HEAD - $(git rev-parse HEAD)"
-          
-
-          echo "git rev-parse HEAD - $(git rev-parse HEAD)"
-
           echo "git rev-parse origin/$BRANCH - $(git rev-parse origin/$BRANCH)"
+          echo "MRG_C - $MRG_C"
           
 
 
-          echo "Local comit sha - $COMMIT_HASH"
-          echo "Merge comit sha - $MERGE_COMMIT_HASH"
+          # echo "Local comit sha - $COMMIT_HASH"
+          # echo "Merge comit sha - $MERGE_COMMIT_HASH"
 
           # gh pr status          
 
