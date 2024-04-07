@@ -1,4 +1,4 @@
-name: test sha update
+name: Point a tag to a new commit
 
 on:         
   workflow_dispatch:
