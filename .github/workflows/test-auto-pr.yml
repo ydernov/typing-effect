@@ -60,7 +60,7 @@ jobs:
           CURRENT_TIME=0
           while [[ "$(gh pr view $PR_URL --json state --template '{{.state}}')" != 'MERGED' ]];
            do
-              if [ $((CURRENT_TIME -lt 60)) ]; then
+              if [ $CURRENT_TIME -lt 60 ]; then
                   echo "Still not merged: retrying in 10 seconds...\n" 
                   CURRENT_TIME=$((CURRENT_TIME+10))
                   sleep 10
