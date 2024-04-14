@@ -6,26 +6,33 @@ on:
     types: [published]
 
 jobs:
-  set-version-to-tag:
+  set_version_to_tag:
     uses: ./.github/workflows/set-version-to-tag.yml
     with:
       ref: ${{github.ref}}
       ref_name: ${{github.ref_name}}
 
+  point_tag_to_new_commit:
+    needs: set_version_to_tag
+    uses: ./.github/workflows/point-tag-to-new-commit.yml
+    with:
+      tag_name: ${{github.ref}}
+      commit_sha: ${{needs.set_version_to_tag.outputs.merge_commit_sha}}
+
   create-and-publish-coverage:
-    needs: set-version-to-tag
+    needs: set_version_to_tag
     uses: ./.github/workflows/coverage-and-badge.yml
     with:
       ref: ${{github.ref}}
     
   publish-to-github-packages:
-    needs: set-version-to-tag
+    needs: point_tag_to_new_commit
     uses: ./.github/workflows/publish-to-github-packages.yml
     with:
       ref: ${{github.ref}}
 
   publish-to-npm:
-    needs: set-version-to-tag
+    needs: point_tag_to_new_commit
     uses: ./.github/workflows/publish-to-npm.yml
     with:
       ref: ${{github.ref}}
