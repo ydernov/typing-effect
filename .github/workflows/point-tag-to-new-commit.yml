@@ -94,8 +94,12 @@ jobs:
           RESPONSE=$( gh api \
             --method PATCH \
             -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/ydernov/typing-effect/git/refs/tags/v1.3.0 \
-            -i --verbose -f sha="4eb6962463bd6c30ac1eac3c9da87db1021e6bf0" -F force=true )
+            # -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/ydernov/typing-effect/git/refs/tags/v1.2.0 \
+            -i --verbose -f sha='b1af268841c11c590a172ea07bf26f05acb40424' -F force=true  )
+
+            # /repos/ydernov/typing-effect/git/refs/tags/v1.3.0 \
+            # -i --verbose -f sha="4eb6962463bd6c30ac1eac3c9da87db1021e6bf0" -F force=true )
+    
 
           echo $RESPONSE
