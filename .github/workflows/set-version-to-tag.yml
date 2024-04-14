@@ -1,4 +1,4 @@
-name: Update Version in package.json on Release
+name: Update the project version in package.json and package-json.lock based on tag name
 
 on: 
   workflow_call:
@@ -10,6 +10,11 @@ on:
         required: true
         type: string
         
+    outputs:
+      merge_commit_sha:
+        description: "Hash of the merge commit on the remote branch"
+        value: ${{ jobs.update_version.outputs.mr_sha }}
+        
   workflow_dispatch:
     inputs:
       ref:
@@ -20,12 +25,15 @@ on:
         required: true
         type: string
         default: 'TAG_NAME'
+        
     
 env:
     GH_TOKEN: ${{ github.token }}
     
 jobs:
-  update-version:
+  update_version:
+    outputs:
+      mr_sha: ${{ steps.push_n_merge.outputs.commit_sha }}
     runs-on: ubuntu-latest
     steps:    
       - name: Check that ref is a tag
@@ -49,42 +57,52 @@ jobs:
         with:
           node-version: 20
           
-      - run: npm i
+      - name: Update package.lock
+        run: |
+          npm i --package-lock-only
 
       - name: Commit and push changes
+        id: push_n_merge
         run: |
           TAG=${{ inputs.ref_name }}
           raw=$(git branch -r --contains ${{ inputs.ref }})
           BRANCH=${raw##*/}
-          LOCAL_BRANCH="$BRANCH-version-bump-$TAG"
+          LOCAL_BRANCH="auto-$BRANCH-version-bump-$TAG"
 
           PR_TITLE="chore (automated): update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
           
           git checkout $BRANCH
           git branch $LOCAL_BRANCH
           git switch $LOCAL_BRANCH
-          
-          echo "Tag $TAG was originaly added to commit $(git rev-parse HEAD)"
   
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
           git add package-lock.json package.json
-          git commit -m "$PR_TITLE"
-          COMMIT_HASH=$(git rev-parse HEAD)
-
+          git commit -m "Update version in package.json and in package-lock.json to ${{ steps.extract_version.outputs.version }}"
           git push origin $LOCAL_BRANCH
-          
-          gh pr create --title "$PR_TITLE" --body "This is an automated PR to update package.json and package-lock.json version" --base "$BRANCH"
-          gh pr merge --auto --delete-branch --squash "$LOCAL_BRANCH"
 
+          echo 'Creating PR...'
+          PR_URL=$(gh pr create --title "$PR_TITLE" --body "This is an automated PR to update package.json and package-lock.json version" --base "$BRANCH")
+          echo "PR created, pr url - $PR_URL"
+          echo "Merging PR - $PR_URL"
+          gh pr merge $PR_URL --auto --delete-branch --squash
 
-          gh release edit "$TAG" --target "$COMMIT_HASH"
-          
-          # git tag -f ${{ inputs.ref_name }} $COMMIT_HASH
-          # git push --atomic origin $BRANCH ${{ inputs.ref_name }} --force
+          # Since actions do not trigger other workflows (e.g. custom workflows on push, merge, etc.), gh pr merge happens immediately
+          # the code below is just for additional safety and future-proofing
+          CURRENT_TIME=0
+          while [[ "$(gh pr view $PR_URL --json state --template '{{.state}}')" != 'MERGED' ]];
+            do
+              if [ $CURRENT_TIME -lt 60 ]; then
+                  echo "Still not merged: retrying in 10 seconds...\n" 
+                  CURRENT_TIME=$((CURRENT_TIME+10))
+                  sleep 10
+              else 
+                  echo "::error::The merge process took longer than the 60-second timeout limit."
+                  exit 1
+              fi
+          done
 
-          echo "Tag $TAG was linked to a new commit $COMMIT_HASH"
-
-
-   
+          MERGE_COMMIT=$(gh pr view $PR_URL --json mergeCommit --template '{{.mergeCommit.oid}}')
+          echo "Merge commit sha - $MERGE_COMMIT"
+          echo "commit_sha=$MERGE_COMMIT" >> $GITHUB_OUTPUT
