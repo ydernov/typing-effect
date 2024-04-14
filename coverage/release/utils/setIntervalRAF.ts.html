@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for utils/substringGenerator.ts</title>
+    <title>Code coverage report for utils/setIntervalRAF.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">utils</a> substringGenerator.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">utils</a> setIntervalRAF.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>25/25</span>
+                <span class='fraction'>28/28</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>25/25</span>
+                <span class='fraction'>28/28</span>
             </div>
         
             
@@ -88,7 +88,10 @@
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -96,47 +99,53 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">611x</span>
-<span class="cline-any cline-yes">611x</span>
-<span class="cline-any cline-yes">611x</span>
-<span class="cline-any cline-yes">611x</span>
-<span class="cline-any cline-yes">240x</span>
-<span class="cline-any cline-yes">240x</span>
-<span class="cline-any cline-yes">2272x</span>
-<span class="cline-any cline-yes">2260x</span>
-<span class="cline-any cline-yes">2260x</span>
-<span class="cline-any cline-yes">611x</span>
-<span class="cline-any cline-yes">371x</span>
-<span class="cline-any cline-yes">371x</span>
-<span class="cline-any cline-yes">2924x</span>
-<span class="cline-any cline-yes">2850x</span>
-<span class="cline-any cline-yes">2850x</span>
-<span class="cline-any cline-yes">371x</span>
-<span class="cline-any cline-yes">611x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">30449x</span>
+<span class="cline-any cline-yes">30449x</span>
+<span class="cline-any cline-yes">30449x</span>
+<span class="cline-any cline-yes">30449x</span>
+<span class="cline-any cline-yes">29965x</span>
+<span class="cline-any cline-yes">29965x</span>
+<span class="cline-any cline-yes">29965x</span>
+<span class="cline-any cline-yes">30449x</span>
+<span class="cline-any cline-yes">30449x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
+<span class="cline-any cline-yes">259x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * @generator Generate incremental (decremental if `reverse` is true) substrings of `string`
- * @param string
- * @param reverse
- * @yields { string } - substring
+ * A setInterval analog built around RAF
+ * @param callback - A function to be called repeatedly with certain `interval`
+ * @param interval
+ * @returns { rafId: number } - Object containing requestAnimationFrame id to cancel the loop with `cancelAnimationFrame`
  */
 &nbsp;
-export function* substringGenerator(
-  string: string,
-  reverse?: boolean
-): Generator&lt;string, void, void&gt; {
-  if (reverse) {
-    let index = string.length;
-    while (index &gt;= 0) {
-      yield string.substring(0, index);
-      index--;
+export function setIntervalRAF(
+  callback: (timestamp: number) =&gt; void,
+  interval: number = 0
+) {
+  let start = performance.now();
+  let handle: { rafId: number } = { rafId: 0 };
+&nbsp;
+  function loop(timestamp: number) {
+    let elapsed = timestamp - start;
+    elapsed = elapsed &gt;= 0 ? elapsed : 0;
+&nbsp;
+    if (elapsed &gt; interval) {
+      start = timestamp;
+      callback(timestamp);
     }
-  } else {
-    let index = 1;
-    while (string.length &gt;= index) {
-      yield string.substring(0, index);
-      index++;
-    }
+    handle.rafId = requestAnimationFrame(loop);
   }
+&nbsp;
+  handle.rafId = requestAnimationFrame(loop);
+  return handle;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -145,7 +154,7 @@ export function* substringGenerator(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-31T13:09:52.606Z
+                at 2024-04-14T15:11:02.477Z
             </div>
         <script src="../prettify.js"></script>
         <script>
