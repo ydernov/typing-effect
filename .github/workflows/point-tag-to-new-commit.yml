@@ -76,5 +76,4 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/ydernov/typing-effect/git/refs/tags/$TAG \
-            -f sha="$COMMIT" \
-           -F force=true 
+            -f "sha=$COMMIT" -F "force=true" 
