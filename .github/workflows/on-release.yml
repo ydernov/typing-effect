@@ -16,7 +16,7 @@ jobs:
     needs: set_version_to_tag
     uses: ./.github/workflows/point-tag-to-new-commit.yml
     with:
-      tag_name: ${{github.ref}}
+      tag_name: ${{github.ref_name}}
       commit_sha: ${{needs.set_version_to_tag.outputs.merge_commit_sha}}
 
   create-and-publish-coverage:
