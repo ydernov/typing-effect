@@ -25,6 +25,8 @@ env:
 jobs:
   check-and-set:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Get tag's current commit
         id: get_tag_commit
