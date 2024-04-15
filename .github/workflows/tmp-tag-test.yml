@@ -26,7 +26,7 @@ jobs:
             /repos/ydernov/typing-effect/git/refs/tags/v1.2.0 \
             -f sha='1a12442506c85d6ab94d75b5c69b69b84604de5d' \
            -F force=true \
-           -i --verbose
+           --verbose
 
            
 
