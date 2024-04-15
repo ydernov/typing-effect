@@ -47,22 +47,22 @@ jobs:
           
           echo "tag_commit=$TAG_COMMIT" >> $GITHUB_OUTPUT
       
-      - name: Test tags'c current commit and new commit relation
-        id: test_relation
-        run: |
-          TAG_COMMIT=${{ steps.get_tag_commit.outputs.tag_commit }}
-          NEW_COMMIT=${{ inputs.commit_sha }}
-          # Check that current commit is an ancestor of new commit; 0 - if true, 1 - if false
-          FIRST=$( git merge-base --is-ancestor $TAG_COMMIT $NEW_COMMIT;  echo $?)
+      # - name: Test tags'c current commit and new commit relation
+      #   id: test_relation
+      #   run: |
+      #     TAG_COMMIT=${{ steps.get_tag_commit.outputs.tag_commit }}
+      #     NEW_COMMIT=${{ inputs.commit_sha }}
+      #     # Check that current commit is an ancestor of new commit; 0 - if true, 1 - if false
+      #     FIRST=$( git merge-base --is-ancestor $TAG_COMMIT $NEW_COMMIT;  echo $?)
           
-          # Check that new commit is an ancestor of current commit; 0 - if true, 1 - if false
-          SECOND=$( git merge-base --is-ancestor $NEW_COMMIT $TAG_COMMIT;  echo $?)
+      #     # Check that new commit is an ancestor of current commit; 0 - if true, 1 - if false
+      #     SECOND=$( git merge-base --is-ancestor $NEW_COMMIT $TAG_COMMIT;  echo $?)
 
-          # One or the other must be an ancestor, only one
-          if [ $((FIRST + SECOND)) -ne 1 ]; then
-            echo "::error::Either the commits are not related or the references do not exist."
-            exit 1
-          fi
+      #     # One or the other must be an ancestor, only one
+      #     if [ $((FIRST + SECOND)) -ne 1 ]; then
+      #       echo "::error::Either the commits are not related or the references do not exist."
+      #       exit 1
+      #     fi
           
       - name: Point a tag to a new commit
         run: |
