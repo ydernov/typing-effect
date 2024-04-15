@@ -46,10 +46,6 @@ jobs:
           fi
           
           echo "tag_commit=$TAG_COMMIT" >> $GITHUB_OUTPUT
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       
       - name: Test tags'c current commit and new commit relation
         id: test_relation
