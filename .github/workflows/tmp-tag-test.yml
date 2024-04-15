@@ -19,13 +19,17 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          gh api \
+          RESPONSE=$( gh api \
             --method PATCH \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/ydernov/typing-effect/git/refs/tags/v1.2.0 \
-            -f sha='4c998f5a777bcc66bafcda24df324ee3e1081d69' \
-           -F force=true 
+            -f sha='1a12442506c85d6ab94d75b5c69b69b84604de5d' \
+           -F force=true \
+           -i --verbose )
+
+           echo $RESPONSE
+
 
           # gh release edit 'v1.2.0' --target 4c998f5a777bcc66bafcda24df324ee3e1081d69
 
