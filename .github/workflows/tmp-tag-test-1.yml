@@ -1,4 +1,4 @@
-name: test sha update
+name: test sha update u1
 
 on:         
   workflow_dispatch:
