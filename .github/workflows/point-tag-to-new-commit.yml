@@ -20,15 +20,15 @@ on:
         type: string
     
 env:
-    GH_TOKEN: ${{ github.token }}
+  GH_TOKEN: ${{ github.token }}
     
 jobs:
   check-and-set:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
+    # permissions:
+    #   contents: write
+    #   pull-requests: write
+    #   repository-projects: write
     steps:
       # - name: Get tag's current commit
       #   id: get_tag_commit
