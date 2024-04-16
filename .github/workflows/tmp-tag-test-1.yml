@@ -30,6 +30,5 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/ydernov/typing-effect/git/refs/tags/v1.3.0 \
-            -f sha='d366a86afddd414b35d25789142a25e269bbdeea' \
-           -F force=true
+            -f "sha=d366a86afddd414b35d25789142a25e269bbdeea" -F "force=true"
            
