@@ -22,6 +22,7 @@ jobs:
           
           # fad7515f94e9f3aca39adfa923d6efcf523ae7f7
           # gh release edit 'v1.2.0' --target 4c998f5a777bcc66bafcda24df324ee3e1081d69
+          # -F "force=true"
 
       - name: Commit and push changes
         run: |
@@ -30,5 +31,5 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/ydernov/typing-effect/git/refs/tags/v1.3.0 \
-            -f "sha=d366a86afddd414b35d25789142a25e269bbdeea" -F "force=true"
+            -f "sha=d366a86afddd414b35d25789142a25e269bbdeea" 
            
