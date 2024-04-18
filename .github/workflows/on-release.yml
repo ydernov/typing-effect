@@ -19,7 +19,7 @@ jobs:
       tag_name: ${{github.ref_name}}
       commit_sha: ${{needs.set_version_to_tag.outputs.merge_commit_sha}}
     secrets:
-      ref_pat: ${{ secrets.REF_UPDATE_PAT }}
+      REF_UPDATE_PAT: ${{ secrets.REF_UPDATE_PAT }}
 
   create-and-publish-coverage:
     needs: set_version_to_tag
@@ -39,4 +39,4 @@ jobs:
     with:
       ref: ${{github.ref}}
     secrets:
-      npm_token: ${{ secrets.NPM_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
