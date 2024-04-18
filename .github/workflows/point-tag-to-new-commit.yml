@@ -18,6 +18,9 @@ on:
       commit_sha:
         required: true
         type: string
+    secrets:
+      REF_UPDATE_PAT:
+        required: true
     
 env:
   GH_TOKEN: ${{ secrets.REF_UPDATE_PAT }}
