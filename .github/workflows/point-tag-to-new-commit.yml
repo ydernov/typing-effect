@@ -18,9 +18,12 @@ on:
       commit_sha:
         required: true
         type: string
+    secrets:
+      ref_pat:
+        required: true
     
 env:
-  GH_TOKEN: ${{ secrets.REF_UPDATE_PAT }}
+  GH_TOKEN: ${{ secrets.REF_UPDATE_PAT || secrets.ref_pat }}
     
 jobs:
   check-and-set:
