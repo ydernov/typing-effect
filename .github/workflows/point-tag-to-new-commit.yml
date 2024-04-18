@@ -19,11 +19,11 @@ on:
         required: true
         type: string
     secrets:
-      ref_pat:
+      REF_UPDATE_PAT:
         required: true
     
 env:
-  GH_TOKEN: ${{ secrets.REF_UPDATE_PAT || secrets.ref_pat }}
+  GH_TOKEN: ${{ secrets.REF_UPDATE_PAT }}
     
 jobs:
   check-and-set:
