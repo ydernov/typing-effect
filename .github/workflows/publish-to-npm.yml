@@ -9,6 +9,12 @@ on:
     secrets:
       NPM_TOKEN:
         required: true
+  
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
 
 env:
   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
