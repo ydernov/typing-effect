@@ -15,10 +15,8 @@ A small TypeScript package that provides the ability to create a typing effect w
 
 ## Installation
 
-Not available yet.
-
 ```bash
-
+npm i typing-effect-ts
 ```
 
 ## Usage
