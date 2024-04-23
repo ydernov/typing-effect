@@ -39,6 +39,6 @@ jobs:
       if: always()
       with:
         name: artifacts
-        path: ./.npmrc
+        path: .npmrc
         if-no-files-found: error
         retention-days: 1
