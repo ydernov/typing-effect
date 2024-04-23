@@ -33,7 +33,7 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
         always-auth: true
 
-    - run: ls
+    - run: npm config list
       if: always()
       
     - run: cat /home/runner/work/_temp/.npmrc
