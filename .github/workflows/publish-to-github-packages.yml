@@ -38,6 +38,10 @@ jobs:
       
     - run: cat /home/runner/work/_temp/.npmrc
       if: always()
+
+    - run: |
+        npm config delete @ydernov:registry
+        npm config set registry https://npm.pkg.github.com/
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
