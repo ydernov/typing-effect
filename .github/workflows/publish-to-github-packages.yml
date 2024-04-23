@@ -6,9 +6,18 @@ on:
       ref:
         required: true
         type: string
+        
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
 
 env:
   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+permissions:
+  packages: write
   
 jobs:
   build-n-publish:
