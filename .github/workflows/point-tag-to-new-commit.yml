@@ -80,5 +80,5 @@ jobs:
             -f sha=$COMMIT -F force=true 
 
           # Edit release object to point to the same commit
-          gh release edit v1.3.0 --target $COMMIT
+          gh release edit $TAG --target $COMMIT
           
