@@ -1,0 +1,29 @@
+name: Point a tag to a new commit
+
+on:         
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+      commit_sha:
+        required: true
+        type: string
+        
+env:
+  GH_TOKEN: ${{ secrets.REF_UPDATE_PAT }}
+    
+jobs:
+  check-and-set:
+    runs-on: ubuntu-latest
+    steps:
+          
+      - name: Fix ${{ inputs.tag_name }} release commit reference
+        run: |
+          TAG=${{ inputs.tag_name }}
+          COMMIT=${{ inputs.commit_sha }}
+
+
+          # Edit release object to point to the same commit
+          gh release edit $TAG --target $COMMIT
+          
