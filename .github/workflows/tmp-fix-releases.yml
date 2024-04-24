@@ -1,4 +1,4 @@
-name: Point a tag to a new commit
+name: Fix release commit reference
 
 on:         
   workflow_dispatch:
