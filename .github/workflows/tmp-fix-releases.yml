@@ -17,6 +17,8 @@ jobs:
   check-and-set:
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v4
           
       - name: Fix ${{ inputs.tag_name }} release commit reference
         run: |
