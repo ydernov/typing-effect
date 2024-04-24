@@ -19,6 +19,16 @@ A small TypeScript package that provides the ability to create a typing effect w
 npm i typing-effect-ts
 ```
 
+### Or via script tag
+Thanks to [JSDELIVR](https://www.jsdelivr.com)
+
+```html
+<script type="module">
+  import { TypingEffect } from "https://cdn.jsdelivr.net/npm/typing-effect-ts/dist/index.js";
+  const te = new TypingEffect();
+</script>
+```
+
 ## Usage
 
 Say we have a div where we want to otput our strings:
@@ -462,3 +472,10 @@ Blink rate when "idle" - after typing or untyping, or during pause. Defaults to 
 `boolean`
 
 Loop to the first string after the last. Defaults to `true`.
+
+
+## Notes
+
+Don't expect exact timing in milliseconds. TypingEffect uses requestAnimationFrame, which usually calls its callback around every 16ms (sometimes longer if the website is busy (usually with JS)). This means the shortest reaction time is at least 16ms, so any timing you set will be rounded to the nearest bigger multiple of 16. 
+
+For instance, if you set `cursorBlinkRate` to 500ms, the cursor will actually blink every 512ms because 500 isn't divisible by 16, but 512 is.
