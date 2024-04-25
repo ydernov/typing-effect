@@ -5,9 +5,335 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + TS</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="typing-examples">
+        <div id="default" class="example-block">
+          <h2>Default example:</h2>
+          <div class="typing-container">
+            Some facts about cats: <span></span>
+          </div>
+        </div>
+
+        <div id="typing-delay" class="example-block">
+          <h2>Typing delay examples:</h2>
+          <div>
+            <h3>Default (100ms)</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>500ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>0ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="typing-variation" class="example-block">
+          <h2>Typing variation examples:</h2>
+          <div>
+            <h3>Default (100ms)</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>500ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>0ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>0ms with typingDelay = 0ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="untyping-delay" class="example-block">
+          <h2>Untyping delay examples:</h2>
+          <div>
+            <h3>Default (100ms)</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>500ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>0ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="delay-before-typing" class="example-block">
+          <h2>Delay before typing examples:</h2>
+          <div>
+            <h3>Default (1600ms)</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>10000ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>0ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="delay-after-typing" class="example-block">
+          <h2>Delay after typing examples:</h2>
+          <div>
+            <h3>Default (3000ms)</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>10000ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>0ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="without-untyping" class="example-block">
+          <h2>No untyping example:</h2>
+          <div class="typing-container">
+            Some facts about cats: <span></span>
+          </div>
+        </div>
+
+        <div id="without-cursor" class="example-block">
+          <h2>No cursor example:</h2>
+          <div class="typing-container">
+            Some facts about cats: <span></span>
+          </div>
+        </div>
+
+        <div id="cursor-blink-rate" class="example-block">
+          <h2>Cursor blink rate examples:</h2>
+          <div>
+            <h3>Default (500ms)</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>1000ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+          <div>
+            <h3>100ms</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="cursor-symbol" class="example-block">
+          <h2>Cursor symbol examples with UTF-8 emoji:</h2>
+          <div>
+            <h3>Typing - 👉; untyping - 👈; blinking - ✋</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="custom-cursor" class="example-block">
+          <h2>Custom cursor examples:</h2>
+          <div class="normal">
+            <h3>Custom cursor demo</h3>
+            <div class="typing-container">
+              Some facts about cats: <span></span
+              ><span class="cursor idle"></span>
+            </div>
+            <p>
+              You can implement custom cursors using event callbacks, like so:
+            </p>
+            <pre>
+customCursorTE.onBeforeTyping(() => {
+  customCursorExample[1].classList.remove("idle");
+});
+
+customCursorTE.onAfterTyping(() => {
+  customCursorExample[1].classList.add("idle");
+});
+
+customCursorTE.onBeforeUntyping(() => {
+  customCursorExample[1].classList.remove("idle");
+});
+
+customCursorTE.onAfterUntyping(() => {
+  customCursorExample[1].classList.add("idle");
+});</pre
+            >
+            <p>
+              Here customCursorExample[1] is our cursor element from this HTML:
+            </p>
+            <pre>
+&lt;div class=&quot;typing-container&quot;&gt;
+  Some facts about cats: &lt;span&gt;&lt;/span&gt;&lt;span class=&quot;cursor idle&quot;&gt;&lt;/span&gt;
+&lt;/div&gt;</pre
+            >
+            <p>And the CSS for the cursor:</p>
+            <pre>
+.cursor {
+  background-color: #00ffff;
+  display: inline-block;
+  width: 10px;
+  height: 1.4em;
+  vertical-align: middle;
+  height: 1em;
+}
+
+.cursor.idle {
+  animation: idleCursorAnimation 2s infinite;
+}
+
+With animation:
+
+@keyframes idleCursorAnimation {
+  0% {
+    background-color: #22c55e;
+  }
+  50% {
+    background-color: #f43f5e;
+  }
+  100% {
+    background-color: #22c55e;
+  }
+}</pre
+            >
+          </div>
+
+          <div class="cursor-overflow-container">
+            <div class="cursor-overflow">
+              <h3>Cursor overflow examples</h3>
+              <h4>Here the cursor jumps to the next line</h4>
+              <div class="typing-container default">
+                Some facts about cats: <span></span
+                ><span class="cursor idle"></span>
+              </div>
+              <h4>And here it doesn't, with some CSS</h4>
+              <pre>
+.cursor {
+  margin-left: -10px;
+  translate: 100% 0;
+}</pre
+              >
+              <div class="typing-container fixed">
+                Some facts about cats: <span></span
+                ><span class="cursor idle"></span>
+              </div>
+              <p>
+                Note the cursor extending over the container's edge;
+                unfortunately, this is a drawback of current solution.
+              </p>
+              <sub
+                >The container width should be set to contain entire string
+                without cursor, if not - use resize</sub
+              >
+            </div>
+          </div>
+        </div>
+
+        <div id="usage-examples" class="example-block">
+          <h2>Some usecases:</h2>
+          <div id="name-input-ex">
+            <h3>Name input placeholder tip</h3>
+            <div class="typing-container">
+              <label
+                ><span>Enter your name:</span>
+                <input type="text" />
+              </label>
+            </div>
+            <p>Here we pause typing when input is focused, and we hide the placehlder with CSS so it doesn't interfere with actual input value.</p>
+            <p>Here's JS:</p>
+            <pre>
+const nameInputExample = document.querySelector<HTMLInputElement>(
+  "#name-input-ex input"
+)!;
+
+const nameInputExampleTE = new TypingEffect(
+  [
+    "Mick Jagger",
+    "Freddie Mercury",
+    "Jimi Hendrix",
+    "David Bowie",
+    "Kurt Cobain",
+    "Jonathan David Douglas 'Jon' Lord",
+  ],
+  (string) => {
+    nameInputExample.setAttribute("placeholder", string);
+  }
+).start();
+
+nameInputExample.addEventListener("focus", () => {
+  nameInputExampleTE.pause();
+});
+
+nameInputExample.addEventListener("blur", () => {
+  nameInputExampleTE.resume();
+});</pre>
+            <p>And CSS:</p>
+            <pre>
+input {
+  padding: 6px 12px;
+  font-size: 1em;
+}
+
+input::placeholder {
+  opacity: 0.5;
+  color: currentColor;
+}
+
+input:focus::placeholder {
+  opacity: 0;
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

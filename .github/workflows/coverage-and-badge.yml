@@ -1,38 +1,38 @@
 name: Run coverage, create badge config, and push to gh-pages
 
-on: 
+on:
   workflow_call:
     inputs:
       ref:
         required: true
         type: string
-        
+
   workflow_dispatch:
 
-env: 
+env:
   REF: ${{ inputs.ref || github.ref }}
-  
+
 jobs:
   create-coverage:
     runs-on: ubuntu-latest
-    env: 
+    env:
       PAGES_TARGET: ${{ startsWith(inputs.ref || github.ref, 'refs/tags/') && 'release' || 'main' }}
-    steps:    
+    steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.REF }}
           fetch-depth: 0
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-    
+
       - name: Run coverage
         run: |
           npm ci
           npm run coverage
 
-      - name: Create badge config 
+      - name: Create badge config
         id: create-badge-config
         uses: actions/github-script@v7
         with:
@@ -69,21 +69,21 @@ jobs:
             } catch(err) {
               core.error("Error while creating JSON for coverage badge")
               core.setFailed(err)
-            } 
+            }
 
-      - name: Write config to badge.json 
+      - name: Write config to badge.json
         run: |
           cd coverage
           BADGE_JSON="${{ steps.create-badge-config.outputs.result }}"
           echo $BADGE_JSON > badge.json
-      
+
       - name: Move coverage contents into ${{ env.PAGES_TARGET }}
         run: |
           cd coverage
           TARGET_DIR="${{ env.PAGES_TARGET }}"
           mkdir "$TARGET_DIR"
           find . -mindepth 1 -maxdepth 1 ! -name "$TARGET_DIR" -exec mv {} "$TARGET_DIR" \;
-          
+
       - name: Commit and push changes
         run: |
           git fetch origin gh-pages
@@ -91,24 +91,10 @@ jobs:
           git checkout gh-pages
 
           TARGET_DIR="${{ env.PAGES_TARGET }}"
-  
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           git add -f coverage/$TARGET_DIR
           git commit -m "Run coverage and created badge for ${{ env.PAGES_TARGET }}"
           git push --atomic origin gh-pages
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: artifacts
-          path: ./coverage
-          if-no-files-found: error
-          retention-days: 1
-
-          
-
-
-   

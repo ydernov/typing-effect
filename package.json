@@ -15,6 +15,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "vite",
+    "build:demo": "vite build",
     "test": "vitest run",
     "coverage": "vitest run --coverage"
   },

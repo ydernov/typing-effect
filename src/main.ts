@@ -1,4 +1,3 @@
-import "./style.css";
 import { TypingEffect } from "./TypingEffect";
 
 const catFunFacts = [
@@ -10,140 +9,6 @@ const catFunFacts = [
   "A cat's nose is as unique as a human's fingerprint.",
   "Cats have a special reflective layer behind their retinas called the tapetum lucidum, which enhances their night vision.",
 ];
-
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div id="typing-examples">
-    <div id="default" class="example-block">
-      <h2>Default example:</h2>
-      <div class="typing-container">Some facts about cats: <span></span></div>
-    </div>
-
-    <div id="typing-delay" class="example-block">
-      <h2>Typing delay examples:</h2>
-      <div>
-        <h3>Default (100ms)</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>500ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>0ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="typing-variation" class="example-block">
-      <h2>Typing variation examples:</h2>
-      <div>
-        <h3>Default (100ms)</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>500ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>0ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>0ms with typingDelay = 0ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="untyping-delay" class="example-block">
-      <h2>Untyping delay examples:</h2>
-      <div>
-        <h3>Default (100ms)</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>500ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>0ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="delay-before-typing" class="example-block">
-      <h2>Delay before typing examples:</h2>
-      <div>
-        <h3>Default (1600ms)</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>10000ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>0ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="delay-after-typing" class="example-block">
-      <h2>Delay after typing examples:</h2>
-      <div>
-        <h3>Default (3000ms)</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>10000ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>0ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="without-untyping" class="example-block">
-      <h2>No untyping example:</h2>
-      <div class="typing-container">Some facts about cats: <span></span></div>
-    </div>
-
-    <div id="without-cursor" class="example-block">
-      <h2>No cursor example:</h2>
-      <div class="typing-container">Some facts about cats: <span></span></div>
-    </div>
-
-    <div id="cursor-blink-rate" class="example-block">
-      <h2>Cursor blink rate examples:</h2>
-      <div>
-        <h3>Default (500ms)</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>1000ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-      <div>
-        <h3>100ms</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="cursor-symbol" class="example-block">
-      <h2>Cursor symbol examples with UTF-8 emoji:</h2>
-      <div>
-        <h3>Typing - 👉; untyping - 👈; blinking - ✋</h3>
-        <div class="typing-container">Some facts about cats: <span></span></div>
-      </div>
-    </div>
-
-    <div id="custom-cursor" class="example-block">
-      <h2>Custom cursor example:</h2>
-
-      <div class="typing-container">Some facts about cats: <span></span><span class='cursor idle'></span></div>
-    </div>
-    
-  </div>
-`;
 
 // default
 const defaultExample = document.querySelectorAll<HTMLSpanElement>(
@@ -395,7 +260,7 @@ const cursorSymbolTE = new TypingEffect(
 
 // custom cursor
 const customCursorExample = document.querySelectorAll<HTMLSpanElement>(
-  "#custom-cursor .typing-container span"
+  "#custom-cursor .normal .typing-container span"
 )! as unknown as [HTMLSpanElement, HTMLSpanElement];
 
 const customCursorTE = new TypingEffect(
@@ -424,6 +289,75 @@ customCursorTE.onAfterUntyping(() => {
   customCursorExample[1].classList.add("idle");
 });
 
+// custom cursor overflow
+
+const customCursorExample_overflow_default =
+  document.querySelectorAll<HTMLSpanElement>(
+    "#custom-cursor .cursor-overflow .typing-container.default span"
+  )! as unknown as [HTMLSpanElement, HTMLSpanElement];
+
+const overflow_default = new TypingEffect(
+  ["Cats have five toes on their front paws but only four on their back ones."],
+  (string) => {
+    customCursorExample_overflow_default[0].innerText = string;
+  },
+  {
+    showCursor: false,
+    loop: false,
+    untypeString: false,
+    delayBeforeTyping: 0,
+    typingDelay: 0,
+    typingVariation: 0,
+  }
+).start();
+
+const customCursorExample_overflow_fixed =
+  document.querySelectorAll<HTMLSpanElement>(
+    "#custom-cursor .cursor-overflow .typing-container.fixed span"
+  )! as unknown as [HTMLSpanElement, HTMLSpanElement];
+
+const overflow_fixed = new TypingEffect(
+  ["Cats have five toes on their front paws but only four on their back ones."],
+  (string) => {
+    customCursorExample_overflow_fixed[0].innerText = string;
+  },
+  {
+    showCursor: false,
+    loop: false,
+    untypeString: false,
+    delayBeforeTyping: 0,
+    typingDelay: 0,
+    typingVariation: 0,
+  }
+).start();
+
 // const ggggg = te.onArrayFinished(() => {
 //   console.log("onArrayFinished");
 // });
+
+// name input example
+const nameInputExample = document.querySelector<HTMLInputElement>(
+  "#name-input-ex input"
+)!;
+
+const nameInputExampleTE = new TypingEffect(
+  [
+    "Mick Jagger",
+    "Freddie Mercury",
+    "Jimi Hendrix",
+    "David Bowie",
+    "Kurt Cobain",
+    "Jonathan David Douglas 'Jon' Lord",
+  ],
+  (string) => {
+    nameInputExample.setAttribute("placeholder", string);
+  }
+).start();
+
+nameInputExample.addEventListener("focus", () => {
+  nameInputExampleTE.pause();
+});
+
+nameInputExample.addEventListener("blur", () => {
+  nameInputExampleTE.resume();
+});
