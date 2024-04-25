@@ -1,6 +1,6 @@
 name: Update the project version in package.json and package-json.lock based on tag name
 
-on: 
+on:
   workflow_call:
     inputs:
       ref:
@@ -9,37 +9,36 @@ on:
       ref_name:
         required: true
         type: string
-        
+
     outputs:
       merge_commit_sha:
         description: "Hash of the merge commit on the remote branch"
         value: ${{ jobs.update_version.outputs.mr_sha }}
-        
+
   workflow_dispatch:
     inputs:
       ref:
         required: true
         type: string
-        default: 'refs/tags/TAG_NAME'
+        default: "refs/tags/TAG_NAME"
       ref_name:
         required: true
         type: string
-        default: 'TAG_NAME'
-        
-    
+        default: "TAG_NAME"
+
 env:
-    GH_TOKEN: ${{ github.token }}
-    
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   update_version:
     outputs:
       mr_sha: ${{ steps.push_n_merge.outputs.commit_sha }}
     runs-on: ubuntu-latest
-    steps:    
+    steps:
       - name: Check that ref is a tag
         if: ${{ !startsWith(inputs.ref, 'refs/tags/') }}
         run: echo "::error::The workflow must be triggered on a tag ref" && exit 1
-      
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -52,11 +51,11 @@ jobs:
           echo "New version: $VERSION"
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          
+
       - name: Update package.lock
         run: |
           npm i --package-lock-only
@@ -70,14 +69,14 @@ jobs:
           LOCAL_BRANCH="auto-$BRANCH-version-bump-$TAG"
 
           PR_TITLE="chore (automated): update package.json version to ${{ steps.extract_version.outputs.version }} in branch $BRANCH"
-          
+
           git checkout $BRANCH
           git branch $LOCAL_BRANCH
           git switch $LOCAL_BRANCH
-  
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           git add package-lock.json package.json
           git commit -m "Update version in package.json and in package-lock.json to ${{ steps.extract_version.outputs.version }}"
           git push origin $LOCAL_BRANCH

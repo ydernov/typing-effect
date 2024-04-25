@@ -1,0 +1,47 @@
+name: Run coverage, create badge config, and push to gh-pages
+
+on:
+  workflow_call:
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  build-andpublish-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test if ref is available
+        run: |
+          TEST_REF=${{ github.ref }}
+          echo $TEST_REF
+          echo ${{ github.ref }}
+          exit 1
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build demo
+        run: |
+          npm ci
+          npm run build:demo
+
+      - name: Commit and push changes
+        run: |
+          git fetch origin gh-pages
+          git reset origin/gh-pages
+          git checkout gh-pages
+          git branch gh-pages-publish-demo
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add package-lock.json package.json
+          git commit -m "Built demo for main"
+          git push origin gh-pages-publish-demo
+
+          echo 'Creating PR...'
+          PR_URL=$(gh pr create --title "chore (automated): Updated demo for main" --body "This is an automated PR to update demo" --base gh-pages)
+          echo "PR created, pr url - $PR_URL"
+          echo "Merging PR - $PR_URL"
+          gh pr merge $PR_URL --auto --delete-branch --squash

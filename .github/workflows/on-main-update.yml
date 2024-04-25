@@ -1,0 +1,9 @@
+name: Run tests, coverage, and publish to pages for main
+
+on:
+  push:
+    branches: "main"
+
+jobs:
+  build-demo:
+    uses: ./.github/workflows/build-demo-for-main.yml

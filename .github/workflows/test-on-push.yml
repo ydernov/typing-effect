@@ -3,8 +3,9 @@ run-name: Run tests for ${{ github.ref_name }}
 
 on:
   push:
-    branches-ignore: 
+    branches-ignore:
       - "gh-pages"
+      - "main"
 
 jobs:
   build-and-test:
