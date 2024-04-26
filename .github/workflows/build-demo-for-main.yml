@@ -26,7 +26,8 @@ jobs:
           git checkout gh-pages
           git branch gh-pages-publish-demo
 
-          sleep 10
+          echo "Sleeping dor 30"
+          sleep 30
 
           cp -r dist-demo/* .
 
@@ -36,6 +37,9 @@ jobs:
           git add .
           git commit -m "Built demo for main"
           git push origin gh-pages-publish-demo
+
+          echo "Sleeping dor 30"
+          sleep 30
 
           echo 'Creating PR...'
           PR_URL=$(gh pr create --title "chore (automated): Updated demo for main" --body "This is an automated PR to update demo" --base gh-pages)
