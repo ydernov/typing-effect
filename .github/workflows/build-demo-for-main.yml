@@ -26,6 +26,8 @@ jobs:
           git checkout gh-pages
           git branch gh-pages-publish-demo
 
+          sleep 10
+
           cp -r dist-demo/* .
 
           git config user.name "github-actions[bot]"
