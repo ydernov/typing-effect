@@ -26,7 +26,7 @@ jobs:
           git checkout gh-pages
           git branch gh-pages-publish-demo
 
-          echo "Sleeping dor 30"
+          echo "Sleeping dor 30 "
           sleep 30
 
           cp -r dist-demo/* .
