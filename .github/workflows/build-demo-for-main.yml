@@ -21,7 +21,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          # git fetch origin gh-pages
+          git fetch origin gh-pages
           # git reset origin/gh-pages
           git checkout gh-pages
           git branch gh-pages-publish-demo
