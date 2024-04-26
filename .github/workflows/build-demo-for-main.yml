@@ -10,13 +10,6 @@ jobs:
   build-andpublish-demo:
     runs-on: ubuntu-latest
     steps:
-      - name: test if ref is available
-        run: |
-          TEST_REF=${{ github.ref }}
-          echo $TEST_REF
-          echo ${{ github.ref }}
-          exit 1
-
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -43,5 +36,5 @@ jobs:
           echo 'Creating PR...'
           PR_URL=$(gh pr create --title "chore (automated): Updated demo for main" --body "This is an automated PR to update demo" --base gh-pages)
           echo "PR created, pr url - $PR_URL"
-          echo "Merging PR - $PR_URL"
-          gh pr merge $PR_URL --auto --delete-branch --squash
+          # echo "Merging PR - $PR_URL"
+          # gh pr merge $PR_URL --auto --delete-branch --squash
