@@ -13,6 +13,8 @@
 
 A small TypeScript package that provides the ability to create a typing effect with one or multiple strings. It is intended for in-browser use.
 
+Ceck the [Notes](https://github.com/ydernov/typing-effect#notes) section and [demo](https://ydernov.github.io/typing-effect/) or more information and examples.
+
 ## Installation
 
 ```bash
