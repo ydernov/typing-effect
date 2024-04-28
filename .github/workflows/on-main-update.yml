@@ -11,5 +11,6 @@ jobs:
   create-and-publish-coverage:
     needs: build-demo
     uses: ./.github/workflows/coverage-and-badge.yml
-      with:
-        ref: ${{github.ref}}
+    with:
+      ref: ${{github.ref}}
+    
