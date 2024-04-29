@@ -13,7 +13,7 @@
 
 A small TypeScript package that provides the ability to create a typing effect with one or multiple strings. It is intended for in-browser use.
 
-Check the [Notes](#notes) section and [demo](https://ydernov.github.io/typing-effect/) for more information and examples.
+Check the [Usage notes](#usage-notes) section and [demo](https://ydernov.github.io/typing-effect/) for more information and examples.
 
 ## Installation
 
@@ -476,8 +476,8 @@ Blink rate when "idle" - after typing or untyping, or during pause. Defaults to 
 Loop to the first string after the last. Defaults to `true`.
 
 
-## Notes
-
+## Usage notes
+### Timing
 Don't expect exact timing in milliseconds. TypingEffect uses requestAnimationFrame, which usually calls its callback around every 16ms (sometimes longer if the website is busy (usually with JS)). This means the shortest reaction time is at least 16ms, so any timing you set will be rounded to the nearest bigger multiple of 16. 
 
 For instance, if you set `cursorBlinkRate` to 500ms, the cursor will actually blink every 512ms because 500 isn't divisible by 16, but 512 is.
