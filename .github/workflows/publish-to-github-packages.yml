@@ -40,20 +40,21 @@ jobs:
       if: always()
       
     - run: |
-        npm ci
+        # npm ci
         # capture current name, then add owner name for scope
         sed -i '' 's/"name": "\(.*\)"/"name": "@ydernov\/\1"/' package.json
-        npm i --package-lock-only
+        # npm i --package-lock-only
+        npm i
         
         
-    # - name: Upload artifacts
-    #   uses: actions/upload-artifact@v4
-    #   if: always()
-    #   with:
-    #     name: artifacts
-    #     path: ./*
-    #     if-no-files-found: error
-    #     retention-days: 1
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: artifacts
+        path: ./*
+        if-no-files-found: error
+        retention-days: 1
         
     
     - run: npm run build
