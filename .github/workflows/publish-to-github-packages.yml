@@ -42,7 +42,7 @@ jobs:
     - run: |
         # npm ci
         # capture current name, then add owner name for scope
-        sed -i '' 's/"name": "\(.*\)"/"name": "@ydernov\/\1"/' package.json
+        sed -i 's/"name": "\(.*\)"/"name": "@ydernov\/\1"/' package.json
         # npm i --package-lock-only
         npm i
         
