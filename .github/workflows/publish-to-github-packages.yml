@@ -38,24 +38,21 @@ jobs:
       
     - run: cat /home/runner/work/_temp/.npmrc
       if: always()
-
+      
     - run: |
-        npm config delete @ydernov:registry
-        npm config set registry https://npm.pkg.github.com/
-
-    - run: npm config list
-      if: always()
+        # capture current name, then add owner name for scope
+        sed -i '' 's/"name": "\(.*\)"/"name": "@ydernov\/\1"/' package.json
         
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: artifacts
-        path: ./*
-        if-no-files-found: error
-        retention-days: 1
+    # - name: Upload artifacts
+    #   uses: actions/upload-artifact@v4
+    #   if: always()
+    #   with:
+    #     name: artifacts
+    #     path: ./*
+    #     if-no-files-found: error
+    #     retention-days: 1
         
-    - run: npm ci
+    - run: npm i
     - run: npm run build
-    - run: npm publish --access public
+    - run: npm publish
 
