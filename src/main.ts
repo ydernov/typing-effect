@@ -361,3 +361,52 @@ nameInputExample.addEventListener("focus", () => {
 nameInputExample.addEventListener("blur", () => {
   nameInputExampleTE.resume();
 });
+
+// problem-layout-shift
+
+const layoutShiftExample = document.querySelector<HTMLInputElement>(
+  "#problem-layout-shift .typing-container span"
+)!;
+
+const layoutShiftExampleStrigs = [
+  "In ancient Egypt, cats held a sacred status, worshipped as embodiments of the goddess Bastet, their sleek forms and enigmatic gaze symbolizing protection, fertility, and divine grace, leading to their depiction in intricate hieroglyphs, adornments in homes, and even mummification alongside esteemed individuals, reflecting a deep cultural reverence that resonated through millennia.",
+  "This is a short string - cats are awesome!",
+];
+
+const layoutShiftExample_longestString = layoutShiftExampleStrigs.reduce(
+  (longest, current) => {
+    return current.length > longest.length ? current : longest;
+  },
+  ""
+);
+
+const layoutShiftExampleTE = new TypingEffect(
+  layoutShiftExampleStrigs,
+  (string) => {
+    layoutShiftExample.innerText = string;
+  },
+  { typingDelay: 0 }
+).start();
+
+const layoutShiftExample_solution1 = document.querySelector<HTMLInputElement>(
+  "#problem-layout-shift .dynamic-solution-position .typing-container span"
+)!;
+
+const layoutShiftExample_solution1_filler =
+  document.querySelector<HTMLInputElement>(
+    "#problem-layout-shift .dynamic-solution-position .filler"
+  )!;
+
+requestAnimationFrame(() => {
+  layoutShiftExample_solution1_filler.style.height = "auto";
+  layoutShiftExample_solution1_filler.innerText =
+    "Some facts about cats: " + layoutShiftExample_longestString + "|";
+});
+
+const layoutShiftExampleTE_solution1 = new TypingEffect(
+  layoutShiftExampleStrigs,
+  (string) => {
+    layoutShiftExample_solution1.innerText = string;
+  },
+  { typingDelay: 0 }
+).start();
