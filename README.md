@@ -14,7 +14,7 @@
 A small TypeScript package that provides the ability to create a typing effect with one or multiple strings. It is intended for in-browser use.
 
 Check the [Usage notes](#usage-notes) section and [demo](https://ydernov.github.io/typing-effect/) for more information and examples. 
-Or take a look at [dev notes](/DEVNOTES.md).
+Or take a look at [dev notes](https://github.com/ydernov/typing-effect/blob/main/DEVNOTES.md).
 
 ## Installation
 
