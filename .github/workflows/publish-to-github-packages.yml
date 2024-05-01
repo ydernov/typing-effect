@@ -16,8 +16,6 @@ on:
 env:
   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-permissions:
-  packages: write
   
 jobs:
   build-n-publish:
@@ -33,29 +31,19 @@ jobs:
         registry-url: 'https://npm.pkg.github.com'
         always-auth: true
 
-    - run: npm config list
-      if: always()
-      
-    - run: cat /home/runner/work/_temp/.npmrc
-      if: always()
-      
-    - run: |
-        # npm ci
-        # capture current name, then add owner name for scope
+    # Repo owner name in package.json name is mandatory for publishing to github packaages
+    - name: Add scope to the name in package.json
+      run: |
+        # capture current name, then prepend owner name for scope
         sed -i 's/"name": "\(.*\)"/"name": "@ydernov\/\1"/' package.json
-        # npm i --package-lock-only
         npm i
-        
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: artifacts
-        path: ./*
-        if-no-files-found: error
-        retention-days: 1
-        
+
+    # Relative links to assets in reaadme e.g. GIF's, are not updated to absolutes, so they don't work on the package page
+    # so we update them manually
+    - name: Change links in readme
+      run: |
+        REPO_LINK=https://github.com/ydernov/typing-effect/raw/main/
+        sed -i "s|\(\<img src\=\"\)\(example_demos\)|\1$REPO_LINK\2|" readme.md
     
     - run: npm run build
     - run: npm publish

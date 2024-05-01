@@ -115,3 +115,32 @@ pre {
 #name-input-ex input:focus::placeholder {
   opacity: 0;
 }
+
+#problem-layout-shift .overflow-container {
+  height: 300px;
+  overflow: auto;
+  padding-left: 20px;
+  border-left: 6px solid #f43f5e;
+}
+
+#problem-layout-shift .typing-container {
+  min-height: unset;
+  max-width: 400px;
+}
+
+#problem-layout-shift
+  .dynamic-solution-position
+  .typing-container-position-wrap {
+  position: relative;
+}
+
+.typing-container-position-wrap .filler {
+  visibility: hidden;
+  max-width: 400px;
+  height: 150px;
+}
+
+.typing-container-position-wrap .typing-container {
+  position: absolute;
+  top: 0;
+}

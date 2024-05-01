@@ -13,7 +13,8 @@
 
 A small TypeScript package that provides the ability to create a typing effect with one or multiple strings. It is intended for in-browser use.
 
-Check the [Notes](#notes) section and [demo](https://ydernov.github.io/typing-effect/) for more information and examples.
+Check the [Usage notes](#usage-notes) section and [demo](https://ydernov.github.io/typing-effect/) for more information and examples. 
+Or take a look at [dev notes](https://github.com/ydernov/typing-effect/blob/main/DEVNOTES.md).
 
 ## Installation
 
@@ -476,8 +477,14 @@ Blink rate when "idle" - after typing or untyping, or during pause. Defaults to 
 Loop to the first string after the last. Defaults to `true`.
 
 
-## Notes
-
+## Usage notes
+### Timing
 Don't expect exact timing in milliseconds. TypingEffect uses requestAnimationFrame, which usually calls its callback around every 16ms (sometimes longer if the website is busy (usually with JS)). This means the shortest reaction time is at least 16ms, so any timing you set will be rounded to the nearest bigger multiple of 16. 
 
 For instance, if you set `cursorBlinkRate` to 500ms, the cursor will actually blink every 512ms because 500 isn't divisible by 16, but 512 is.
+
+### Layout shift
+Important! If you are using TypingEffect as in the examples to set the content of some element, it's essential to remember the layout shift. See the [demo](https://ydernov.github.io/typing-effect#problem-layout-shift) for context. 
+It is bad UX practice since it causes content jitter, making it harder for people to process; therefore, it should be avoided. The simplest way is to check the maximum height of the container during the cycle and set it's `height` or `min-height` accordingly.
+
+If this does not meet your requirements, refer to the solution in the demo for [layout shift](https://ydernov.github.io/typing-effect#problem-layout-shift) to understand how it can be dynamically resolved.
