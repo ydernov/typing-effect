@@ -8,6 +8,9 @@ on:
         required: true
         type: string
 
+env:
+  GH_TOKEN: ${{ github.token }}
+    
 jobs:
   check-release-and-get-commit:
     runs-on: ubuntu-latest
