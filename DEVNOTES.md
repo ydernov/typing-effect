@@ -3,7 +3,9 @@
 Here I will describe certain aspects of TypingEffect development, things, I think, may be interesting for other developers (and not to forget them myself). I've found all this information in various sources but felt like combining it all here in one place.
 
 ## GitHub Pages deploy
-In this project I use GitHub Pages to
+In this project I use GitHub Pages to store coverage artifacts and coverage badge info for main branch and for the latest release, as well as hosting the [demo page](https://ydernov.github.io/typing-effect/).
+
+Below are the steps to create a similar coverage/deploy in no particular order, except for the first one, because without the pages branch deploys won't work.
 
 ### Create a branch for deploys
 We need an empty branch, not related to other branches. This is where `git checkout --orphan` comes to use. This is a one-time operation, so it can be done on a local machine.
