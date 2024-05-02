@@ -25,7 +25,7 @@ jobs:
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/ydernov/typing-effect/releases/tags/$TAG | jq '.target_commitish' )
 
-          if [ -z "$TAG_COMMIT" ]; then
+          if [ -z "$TAG_COMMIT" ] || [ "$TAG_COMMIT" = "null" ]; then
             echo "::error::Failed to determine tag's release commit. Check that tag $TAG exists, and has release refefence."
             exit 1
           fi
