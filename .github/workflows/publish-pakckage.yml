@@ -1,0 +1,52 @@
+name: Publish to NPM andGitHub packages
+run-name: Publish package for ${{ inputs.tag_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+
+jobs:
+  check-release-and-get-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.get_sha.outputs.sha }}
+    steps:
+      - id: get_sha
+        run: |
+          TAG=${{ inputs.tag_name }}
+          TAG_COMMIT=$( gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/ydernov/typing-effect/releases/tags/v1.3.4 | jq '.target_commitish' )
+
+          if [ -z "$TAG_COMMIT" ]; then
+            echo "::error::Failed to determine tag's release commit. Check that tag $TAG exists, and has release refefence."
+            exit 1
+          fi
+
+          echo "sha=$TAG_COMMIT" >> $GITHUB_OUTPUT
+
+  test-job:
+    runs-on: ubuntu-latest:
+    needs: check-release-and-get-commit
+    steps: 
+      - run: |
+          echo "Got this commit - ${{needs.check-release-and-get-commit.outputs.sha}}"
+          
+  # publish-to-github-packages:
+  #   needs: check-release-and-get-commit
+  #   uses: ./.github/workflows/publish-to-github-packages.yml
+  #   with:
+  #     ref: ${{needs.check-release-and-get-commit.outputs.sha}}
+
+  # publish-to-npm:
+  #   needs: check-release-and-get-commit
+  #   uses: ./.github/workflows/publish-to-npm.yml
+  #   with:
+  #     ref: ${{needs.check-release-and-get-commit.outputs.sha}}
+      
+    # secrets:
+    #   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
