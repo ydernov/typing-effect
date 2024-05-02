@@ -26,17 +26,3 @@ jobs:
     uses: ./.github/workflows/coverage-and-badge.yml
     with:
       ref: ${{github.ref}}
-    
-  publish-to-github-packages:
-    needs: point_tag_to_new_commit
-    uses: ./.github/workflows/publish-to-github-packages.yml
-    with:
-      ref: ${{github.ref}}
-
-  publish-to-npm:
-    needs: point_tag_to_new_commit
-    uses: ./.github/workflows/publish-to-npm.yml
-    with:
-      ref: ${{github.ref}}
-    secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
