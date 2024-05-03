@@ -88,7 +88,7 @@ Important! "schemaVersion" must be 1, and it must be a number, it won't work if 
 ```
 For this task, I initially used [jq](https://jqlang.github.io/jq/), which is a CLI tool for working with JSON and is available in GitHub Actions by default. I created a script that parsed the `coverage-summary.json` file, extracted the necessary values, performed the required calculations, assigned colors, and generated a JSON output based on that.
 
-I used [this playgroung](https://jqplay.org/) for writing the script and a local jq installation for testing said script. And it worked, but not on GitHub. Because both local jq and playground's jq are on were on version 1.7.1, while GitHub only had 1.6 (with no plans for updates, as I read in one post). So I've scrapped it and rewrote it in JS with [actions/github-script](https://github.com/actions/github-script).
+I used [this playgroung](https://jqplay.org/) for writing the script and a local jq installation for testing said script. And it worked, but not on GitHub. Because both local jq and playground's jq were on version 1.7.1, while GitHub only had 1.6 (with no plans for updates, as I read in one post). So I've scrapped it and rewrote it in JS with [actions/github-script](https://github.com/actions/github-script).
 The code does the following:
 - gathers total percentage values from four main categories - "lines", "statements", "functions", "branches" and calculates their average
 - runs the average against colorRanges keys, to get the matching key:
@@ -101,7 +101,6 @@ const colorKey = (
 ).toString();
 ```
 - rounds the average to one decimal
-- creates JSON string and returns it
-The github-script action puts the value returned from script into result key in step's output.
+- creates JSON string and returns it, the github-script action puts the value returned from script into result key in step's output.
 
 
