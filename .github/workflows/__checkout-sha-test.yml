@@ -1,0 +1,34 @@
+name: Test checkout
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+    
+jobs:
+  check-release-and-get-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.get_sha.outputs.sha }}
+    steps:
+      - id: get_sha
+        run: |
+          TAG=${{ inputs.tag_name }}
+          TAG_COMMIT=$( gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/ydernov/typing-effect/releases/tags/$TAG | jq '.target_commitish' )
+
+          if [ -z "$TAG_COMMIT" ] || [ "$TAG_COMMIT" = "null" ]; then
+            echo "::error::Failed to determine tag's release commit. Check that tag $TAG exists, and has release refefence."
+            exit 1
+          fi
+
+          echo "sha=$TAG_COMMIT" >> $GITHUB_OUTPUT
+
+      - uses: actions/checkout@v4
+        with: 
+          ref: ${{ steps.get_sha.outputs.sha }}
+          
