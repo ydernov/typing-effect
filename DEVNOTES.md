@@ -130,6 +130,13 @@ We use this output in the next step to write the JSON string to the `badge.json`
 
 Next we switch to the branch, [set the user](#GitHub-actions-git-setup), commit the changes and push them. This works if branch doesn't have push protection rules. So I recommend creating a pull request amd merging it with GitHub CLI. As done in [this workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/build-demo-for-main.yml).
 
+An interesting thing that I noticed while working on this workflow is that every step sets its current Bash shell directory to the repository root.
+
+Hence the repeated:
+```bash
+cd coverage
+```
+
 Now only a couple of steps left to get the bade:
 - Run the workflow and check that deployment to pages was successful
 - Navigate to [shields endpoint-badge](https://img.shields.io/badges/endpoint-badge) and construct markdown badge with URL to badge.json in your pages deployment
