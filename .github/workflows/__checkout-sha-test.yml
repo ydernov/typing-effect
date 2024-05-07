@@ -33,5 +33,6 @@ jobs:
 
       - uses: actions/checkout@v4
         with: 
-          ref: ${{ steps.get_sha.outputs.sha }}
+          ref: f88e70a6af3814417955dca6ebc451b83fcb91d2
+          # ${{ steps.get_sha.outputs.sha }}
           
