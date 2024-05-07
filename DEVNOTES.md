@@ -14,11 +14,11 @@ The `41898282` part is this user's ID, which was not necessary at the time of wr
 
 It gives the automated commits a more 'official' appearance by attributing them to an actual existing GitHub user. It is a bot user and you can can check it's info [here](https://api.github.com/users/github-actions[bot]).
 
-<img src="/example_demos/gh_bot_commit_example.png" width="80%" />
+<img src="/example_demos/gh_bot_commit_example.png" width="400px" />
 
 And in contributors section:
 
-<img src="/example_demos/gh_bot_contributors_example.png" width="80%" />
+<img src="/example_demos/gh_bot_contributors_example.png" width="400px" />
 
 I've also set the default workflow permissions in repo settings as `Read and write permissions`, which is a lazy way. Recommended way is to set granular permissions in workflow files.
 
