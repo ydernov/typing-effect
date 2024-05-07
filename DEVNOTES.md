@@ -136,6 +136,12 @@ Hence the repeated:
 ```bash
 cd coverage
 ```
+While for Node scripts (at least in github-script action) you need to resolve path, like this:
+```js
+const path = require('path');
+const summaryTotal = require(path.join(path.resolve(), '/coverage/coverage-summary.json')).total;
+```
+Note that `require` in github-script action is a proxy function. 
 
 Now only a couple of steps left to get the bade:
 - Run the workflow and check that deployment to pages was successful
