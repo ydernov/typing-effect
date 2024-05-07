@@ -2,6 +2,29 @@
 
 Here I will describe certain aspects of TypingEffect development, things, I think, may be interesting for other developers (and not to forget them myself). I've found all this information in various sources but felt like combining it all here in one place.
 
+## GitHub actions git setup
+To make automatic modifications to the code I use git and [GitHub CLI](https://cli.github.com/) + [GitHub API](https://docs.github.com/en/rest).
+
+One important thing is to set git user. I use this configuration in all workflows:
+```bash
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+```
+The `41898282` part is this user's ID, which was not necessary at the time of writing, but I've added it just in case.
+
+It gives the automated commits a more 'official' appearance by attributing them to an actual existing GitHub user. It is a bot user and you can can check it's info [here](https://api.github.com/users/github-actions[bot]).
+
+<img src="/example_demos/gh_bot_commit_example.png" width="80%" />
+
+And in contributors section:
+
+<img src="/example_demos/gh_bot_contributors_example.png" width="80%" />
+
+I've also set the default workflow permissions in repo settings as `Read and write permissions`, which is a lazy way. Recommended way is to set granular permissions in workflow files.
+
+And check the `Allow GitHub Actions to create and approve pull requests` box below.
+
+
 ## GitHub Pages deploy
 In this project I use GitHub Pages to store coverage artifacts and coverage badge info for main branch and for the latest release, as well as hosting the [demo page](https://ydernov.github.io/typing-effect/).
 
@@ -103,4 +126,17 @@ const colorKey = (
 - rounds the average to one decimal
 - creates JSON string and returns it, the github-script action puts the value returned from script into result key in step's output.
 
+We use this output in the next step to write the JSON string to the `badge.json` file. The `>` command will create the file if it doesn't exist. Next we create a folder inside insode a coverage folder. This folder name depends on the git ref - which for this workflow can be either `refs/heads/main` or `refs/tags/TAG_NAME`. And so if ref is tag we create `release` directory, otherwise `main`.
+
+Next we switch to the branch, [set the user](#GitHub-actions-git-setup), commit the changes and push them. This works if branch doesn't have push protection rules. So I recommend creating a pull request amd merging it with GitHub CLI. As done in [this workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/build-demo-for-main.yml).
+
+Now only a couple of steps left to get the bade:
+- Run the workflow and check that deployment to pages was successful
+- Navigate to [shields endpoint-badge](https://img.shields.io/badges/endpoint-badge) and construct markdown badge with URL to badge.json in your pages deployment
+- Now add to your readme `[markdown_badge](link_to_coverage)`, where `link_to_coverage` is a link to your coverage html file in pages deployment
+
+Example: 
+```markdown
+[![Coverage main](https://img.shields.io/endpoint?url=https%3A%2F%2Fydernov.github.io%2Ftyping-effect%2Fcoverage%2Fmain%2Fbadge.json)](https://ydernov.github.io/typing-effect/coverage/main/index.html)
+```
 
