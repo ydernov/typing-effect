@@ -43,7 +43,7 @@ jobs:
     - name: Change links in readme
       run: |
         REPO_LINK=https://github.com/ydernov/typing-effect/raw/main/
-        sed -i "s|\(\<img src\=\"\)\(example_demos\)|\1$REPO_LINK\2|" readme.md
+        sed -i "s|\(\<img src\=\"\)\(example_demos\)|\1$REPO_LINK\2|" README.md
     
     - run: npm run build
     - run: npm publish
