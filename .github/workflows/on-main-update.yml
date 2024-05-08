@@ -12,5 +12,5 @@ jobs:
     needs: build-demo
     uses: ./.github/workflows/coverage-and-badge.yml
     with:
-      ref: ${{github.ref}}
+      ref: ${{ github.ref }}
     
