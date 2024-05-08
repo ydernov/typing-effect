@@ -23,7 +23,7 @@ jobs:
           TAG_COMMIT=$( gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/ydernov/typing-effect/releases/tags/$TAG | jq '.target_commitish' | tr -d '"')
+            /repos/ydernov/typing-effect/releases/tags/$TAG | jq '.target_commitish' | tr -d '"' )
 
           if [ -z "$TAG_COMMIT" ] || [ "$TAG_COMMIT" = null ]; then
             echo "::error::Failed to determine tag's release commit. Check that tag $TAG exists, and has release reference."
