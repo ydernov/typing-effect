@@ -153,3 +153,30 @@ Example:
 [![Coverage main](https://img.shields.io/endpoint?url=https%3A%2F%2Fydernov.github.io%2Ftyping-effect%2Fcoverage%2Fmain%2Fbadge.json)](https://ydernov.github.io/typing-effect/coverage/main/index.html)
 ```
 
+### Demo
+Here I'll cover the [demo publishing workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/build-demo-for-main.yml). It serves the same purpose as the coverage workflow - to push some files to `gh-pages` branch. But it does it in a different way, a more correct approach.
+
+This one is rather simple: after checking-out the `main` branch and building the demo artifacts, we switch to a local copy of `gh-pages` branch.
+Since `gh-pages` and `main` are unrelated, all files and directories from `main`, including the `dist-demo` folder containing the demo artifacts, are considered new and untracked files.
+
+We're interested only in `dist-demo`, everything else must go, so we use `git stash`. First, stash `dist-demo`:
+```bash
+git add dist-demo
+git stash
+```
+Then, stash everything else and remove the stash:
+```bash
+git stash -u && git stash drop
+```
+The `-u` flag tells git to also stash untracked files. Then we delete the latest stash with `git stash drop`.
+Now `pop` the last stash, which is now the `dist-demo` stash.
+
+Since I wanted the demo to be in the root directory, I added some commands to copy the folder's contents to the root and then delete the original folder.
+
+Then there is a check for actual updates to commit:
+```bash
+if [ $(git add . && git diff --quiet && git diff --cached --quiet; echo $?) -eq 1 ]; then
+...
+```
+
+If there is, we push the local branch, and with GitHub CLI create PR into `gh-pages` and merge it. For this approach you need `Allow GitHub Actions to create and approve pull requests` in project settings to be checked.
