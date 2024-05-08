@@ -10,14 +10,14 @@ jobs:
     uses: ./.github/workflows/set-version-to-tag.yml
     with:
       ref: ${{github.ref}}
-      ref_name: ${{github.ref_name}}
+      ref_name: ${{ github.ref_name }}
 
   point_tag_to_new_commit:
     needs: set_version_to_tag
     uses: ./.github/workflows/point-tag-to-new-commit.yml
     with:
-      tag_name: ${{github.ref_name}}
-      commit_sha: ${{needs.set_version_to_tag.outputs.merge_commit_sha}}
+      tag_name: ${{ github.ref_name }}
+      commit_sha: ${{ needs.set_version_to_tag.outputs.merge_commit_sha }}
     secrets:
       REF_UPDATE_PAT: ${{ secrets.REF_UPDATE_PAT }}
 
@@ -25,4 +25,4 @@ jobs:
     needs: set_version_to_tag
     uses: ./.github/workflows/coverage-and-badge.yml
     with:
-      ref: ${{github.ref}}
+      ref: ${{ github.ref }}
