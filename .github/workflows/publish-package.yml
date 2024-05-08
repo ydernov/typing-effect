@@ -26,7 +26,7 @@ jobs:
             /repos/ydernov/typing-effect/releases/tags/$TAG | jq '.target_commitish' | tr -d '"')
 
           if [ -z "$TAG_COMMIT" ] || [ "$TAG_COMMIT" = null ]; then
-            echo "::error::Failed to determine tag's release commit. Check that tag $TAG exists, and has release refefence."
+            echo "::error::Failed to determine tag's release commit. Check that tag $TAG exists, and has release reference."
             exit 1
           fi
 
