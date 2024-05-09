@@ -1,8 +1,10 @@
 # Typing Effect Dev Notes
 
-Here I will describe certain aspects of TypingEffect development, things, I think, may be interesting for other developers (and not to forget them myself). I've found all this information in various sources but felt like combining it all here in one place.
+Here I will describe certain aspects of TypingEffect development, things, I think, may be interesting for other developers (and not to forget them myself). I've found all this information in various sources, mostly in [GitHub Docs](https://docs.github.com/en), but also in GitHub issuies/comments, Stack Overflow, Medium, and some other places, as well as trial and error. 
+So I felt like combining it all here in one place.
 
 ## GitHub actions git setup
+
 To make automatic modifications to the code I use git and [GitHub CLI](https://cli.github.com/) + [GitHub API](https://docs.github.com/en/rest).
 
 One important thing is to set git user. I use this configuration in all workflows:
@@ -26,11 +28,13 @@ And check the `Allow GitHub Actions to create and approve pull requests` box bel
 
 
 ## GitHub Pages deploy
+
 In this project I use GitHub Pages to store coverage artifacts and coverage badge info for main branch and for the latest release, as well as hosting the [demo page](https://ydernov.github.io/typing-effect/).
 
 Below are the steps to create a similar coverage/deploy in no particular order, except for the first one, because without the pages branch deploys won't work.
 
 ### Create a branch for deploys
+
 We need an empty branch, not related to other branches. This is where `git checkout --orphan` comes to use. This is a one-time operation, so it can be done on a local machine.
 
 Here I use `gh-pages` as the name for the branch:
@@ -64,6 +68,7 @@ Then go to repository Settings -> Code and automation -> Pages. Under Build and 
 Now, every time there is a push to this branch, it's going to be published to GitHub Pages.
 
 ### Coverage
+
 So, I've decided to create my own coverage badges, just because. To do this, I plan to use the [endpoint badge](https://img.shields.io/badges/endpoint-badge) feature from [shields.io](https://shields.io/). It's not entirely custom, but it's easy to use - simply a link with a JSON configuration as a query parameter, and it's customizable within that JSON file.
 
 This is a description/explanation for a workflow. A workflow is required here because I wanted it to run every time there ara updates to `main` and for every created release. More on those later.
@@ -78,6 +83,7 @@ To do this, we need:
 - Push it to `gh-pages` branch
 
 #### Coverage reports
+
 Nothing special here. I use [Vitest](https://vitest.dev/) for testing and coverage in this project, so I just neede to add a line or two in [vite.config.ts](https://github.com/ydernov/typing-effect/blob/main/vite.config.ts).
 ```ts
     coverage: {
@@ -96,6 +102,7 @@ And add this to scripts in package.json:
 ```
 
 #### Badge JSON config
+
 The config needs just four fields, only the first 3 are required:
 ```json
 {
@@ -154,6 +161,7 @@ Example:
 ```
 
 ### Demo
+
 Here I'll cover the [demo publishing workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/build-demo-for-main.yml). It serves the same purpose as the coverage workflow - to push some files to `gh-pages` branch. But it does it in a different way, a more correct approach.
 
 This one is rather simple: after checking-out the `main` branch and building the demo artifacts, we switch to a local copy of `gh-pages` branch.
@@ -179,4 +187,57 @@ if [ $(git add . && git diff --quiet && git diff --cached --quiet; echo $?) -eq 
 ...
 ```
 
-If there is, we push the local branch, and with GitHub CLI create PR into `gh-pages` and merge it. For this approach you need `Allow GitHub Actions to create and approve pull requests` in project settings to be checked.
+If there are updates, we push the local branch, and with GitHub CLI create PR into `gh-pages` and merge it. For this approach you need `Allow GitHub Actions to create and approve pull requests` in project settings to be checked.
+
+### Application
+
+#### Main
+
+Both of these workflows/processes are used in a [workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/on-main-update.yml) for updates to the `main` branch. Which triggers every time there is a push/merge to `main`. In this workflow, notice that the job `create-and-publish-coverage` depends on `build-demo`:
+```yaml
+create-and-publish-coverage:
+    needs: build-demo
+    ...
+```
+Since jobs naturally execute in parallel, and both of these jobs make changes to the same branch `gh-pages`, I decided to run them concurrently. This way, merge conflicts can be avoided. Although, I **DID NOT** test them in parallel.
+
+#### Release
+
+The coverage and badge workflow, also is used in [workflow for release](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/on-release.yml). Because every time there is a new release, I need to "recalculate" it's coverage and badge.
+
+## Release workflow
+
+[This one](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/on-release.yml).
+
+I wanted certain behavior every time relese is created (in GitHub UI):
+1. Update version in package.json to match the release tag
+2. Create coverage + badge
+3. Publish release artifacts to NPM and GitHub packages
+
+In reality, there are a bit more steps. And publishing is on it's [separate workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/publish-package.yml).
+
+### Version update
+
+I didn't want to manualy change the version in package.json and match their versions every time before creating a new release, so I created [this workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/set-version-to-tag.yml).
+
+What it does:
+1. Takes in `ref` - tag reference like `refs/tags/v1.0.1`, `ref_name` - just `v1.0.1` part of the ref
+2. Checks that reference is a tag
+3. Extracts version number from `ref_name` (tag name), and updates version field in package.json with this value
+4. Updates package-lock.json, so it's version matches package.json's
+5. Creates local branch and pushes it to remote, then merges it
+6. Sets merge commit SHA as workflow output
+
+Nothing really special here, probably can benefit from less inputs (just ref) and additional checks for tag name.
+
+#### Check tag
+
+GitHub provides a variety of [functions and expressions](https://docs.github.com/en/actions/learn-github-actions/expressions), one of which `startsWith` helps to determine that ref is a tag. This is a negative condition step, so there's `!` before `startsWith`.
+Note `&& exit 1` in run. It stops the workflow and prevent other steps from executing. The other way to do this is, probably, to add running condition to other steps via `if`, which checks that this step did not run. But I find `&& exit 1` simpler.
+
+#### Update package.json
+
+Here the version number is extracted from `ref_name` with substitution. It works only on bash variables, so we assign `ref_name` to `TAG` variable beforehand. Thus `v1.0.1` tag transforms to `1.0.1` and being assigned to the `VERSION` variable.
+
+Describe sed
+====
