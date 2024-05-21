@@ -237,7 +237,33 @@ Note `&& exit 1` in run. It stops the workflow and prevent other steps from exec
 
 #### Update package.json
 
-Here the version number is extracted from `ref_name` with substitution. It works only on bash variables, so we assign `ref_name` to `TAG` variable beforehand. Thus `v1.0.1` tag transforms to `1.0.1` and being assigned to the `VERSION` variable.
+Here, the version number is extracted from `ref_name` using substitution. Since this method works only on bash variables, we first assign `ref_name` to the `TAG` variable. This transforms the `v1.0.1` tag name to `1.0.1`, which is then assigned to the `VERSION` variable.
 
-Describe sed
-====
+Then, using `sed`, we search for the pattern inside package.json and replase the whole match:
+```bash
+sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+```
+Note, that this will replace all matches in package.json, which might be a problem - don't really know if there are any other `"version": "version_value"` key/value pairs.
+
+Additionally, write the extracted version to the output for downstream use:
+```bash
+echo "version=$VERSION" >> $GITHUB_OUTPUT
+```
+Next, we update package-lock.json. There are definitely more than one occurrence of `"version": "version_value"` in it, so the simplest way is to update it using the `npm i` command with a specific flag:"
+```bash
+npm i --package-lock-only
+```
+
+#### Commit and push changes
+
+First, we find what branch has our ref (tag):
+```bash
+raw=$(git branch -r --contains ${{ inputs.ref }})
+```
+In this project, tags are set on `main`, so there is no actual need to dynamically determine the branch. However, I do it for potential reusability. List only remote branches with the `-r` flag. It returns something like `typing-effect/main`, but we only need `main`, so we perform a substitution:
+```bash
+BRANCH=${raw##*/}
+```
+`${raw##*/}` does the same thing as `${raw#*/*/}`, transforming `typing-effect/main` into `main`. The second `#` is unnecessary in this case but can be useful if the remote has additional slashes, such as `my-company/typing-effect/main`. However, it can also be detrimental if the branch name itself contains slashes.
+
+This approach works here, because this workflow triggers on release creation, which means at the time of execution only one branch contains this ref (tag). Otherwise it returns a list of branches.
