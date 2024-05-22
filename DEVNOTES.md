@@ -137,18 +137,17 @@ We use this output in the next step to write the JSON string to the `badge.json`
 
 Next we switch to the branch, [set the user](#GitHub-actions-git-setup), commit the changes and push them. This works if branch doesn't have push protection rules. So I recommend creating a pull request amd merging it with GitHub CLI. As done in [this workflow](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/build-demo-for-main.yml).
 
-An interesting thing that I noticed while working on this workflow is that every step sets its current Bash shell directory to the repository root.
-
-Hence the repeated:
-```bash
-cd coverage
-```
-While for Node scripts (at least in github-script action) you need to resolve path, like this:
-```js
-const path = require('path');
-const summaryTotal = require(path.join(path.resolve(), '/coverage/coverage-summary.json')).total;
-```
-Note that `require` in github-script action is a proxy function. 
+> Note: A thing I've noticed while working on this workflow is that every step sets its current Bash shell directory to the repository root.
+>
+> Hence the repeated:
+> ```bash
+> cd coverage
+> ```
+> While for Node scripts (at least in github-script action) you need to resolve path, like this:
+> ```js
+> const path = require('path');
+> const summaryTotal = require(path.join(path.resolve(), '/coverage/coverage-summary.json')).total;
+> ```
 
 Now only a couple of steps left to get the bade:
 - Run the workflow and check that deployment to pages was successful
@@ -243,7 +242,7 @@ Then, using `sed`, we search for the pattern inside package.json and replase the
 ```bash
 sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
 ```
-Note, that this will replace all matches in package.json, which might be a problem - don't really know if there are any other `"version": "version_value"` key/value pairs.
+> Note: This will replace all matches in package.json, which might be a problem - don't really know if there are any other `"version": "version_value"` key/value pairs.
 
 Additionally, write the extracted version to the output for downstream use:
 ```bash
@@ -261,9 +260,45 @@ First, we find what branch has our ref (tag):
 raw=$(git branch -r --contains ${{ inputs.ref }})
 ```
 In this project, tags are set on `main`, so there is no actual need to dynamically determine the branch. However, I do it for potential reusability. List only remote branches with the `-r` flag. It returns something like `typing-effect/main`, but we only need `main`, so we perform a substitution:
+
 ```bash
 BRANCH=${raw##*/}
 ```
+
 `${raw##*/}` does the same thing as `${raw#*/*/}`, transforming `typing-effect/main` into `main`. The second `#` is unnecessary in this case but can be useful if the remote has additional slashes, such as `my-company/typing-effect/main`. However, it can also be detrimental if the branch name itself contains slashes.
 
-This approach works here, because this workflow triggers on release creation, which means at the time of execution only one branch contains this ref (tag). Otherwise it returns a list of branches.
+> Note: This approach works here, because this workflow is triggered on release creation, which means at the time of execution only one branch contains this ref (tag). Otherwise it returns a list of branches.
+
+Next we create local branch, set git user, commit and push updated package.json and package-lock.json. 
+
+Then we create a pull request request on the base brach:
+
+```bash
+PR_URL=$(gh pr create --title "$PR_TITLE" --body "This is an automated PR to update package.json and package-lock.json version" --base "$BRANCH")
+```
+
+It returns a pull request URL, which is later used to merge the PR:
+
+```bash
+gh pr merge $PR_URL --auto --delete-branch --squash
+```
+
+There's also a redundant check for PR status:
+
+```bash
+while [[ "$(gh pr view $PR_URL --json state --template '{{.state}}')" != 'MERGED' ]];
+  do
+    if [ $CURRENT_TIME -lt 60 ]; then
+      echo "Still not merged: retrying in 10 seconds...\n" 
+      CURRENT_TIME=$((CURRENT_TIME+10))
+      sleep 10
+    else 
+      echo "::error::The merge process took longer than the 60-second timeout limit."
+      exit 1
+    fi
+done
+```
+
+Redundant because:
+- The repository does not have any additional checks for PR, except [`test-on-push.yml`](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/test-on-push.yml). Nor does it have [merge queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue) set up.
+- [`test-on-push.yml`](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/test-on-push.yml), will not trigger for the pushed `LOCAL_BRANCH` because the push was made from the workflow with `GITHUB_TOKEN`. As stated in [the docs](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
