@@ -417,6 +417,10 @@ gh release edit $TAG --target $COMMIT
 
 You can check release info by tag name with this [endpoint](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release-by-tag-name). For example - https://api.github.com/repos/ydernov/typing-effect/releases/tags/v1.3.5.
 
+This concludes the "on-release" workflow. It also has coverage-and-badge job, but it is described [here](#coverage).
+
 ---
 
-This concludes the "on-release" workflow. It also has coverage-and-badge job, but it is described [here](#coverage).
+## Publishing
+
+In progress...
