@@ -26,6 +26,7 @@ I've also set the default workflow permissions in repo settings as `Read and wri
 
 And check the `Allow GitHub Actions to create and approve pull requests` box below.
 
+---
 
 ## GitHub Pages deploy
 
@@ -204,6 +205,8 @@ Since jobs naturally execute in parallel, and both of these jobs make changes to
 
 The coverage and badge workflow, also is used in [workflow for release](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/on-release.yml). Because every time there is a new release, I need to "recalculate" it's coverage and badge.
 
+---
+
 ## Release workflow
 
 [This one](https://github.com/ydernov/typing-effect/blob/main/.github/workflows/on-release.yml).
@@ -283,7 +286,7 @@ It returns a pull request URL, which is later used to merge the PR:
 gh pr merge $PR_URL --auto --delete-branch --squash
 ```
 
-There's also a redundant check for PR status:
+There's also a redundant check with timeout for PR status:
 
 ```bash
 while [[ "$(gh pr view $PR_URL --json state --template '{{.state}}')" != 'MERGED' ]];
@@ -301,4 +304,119 @@ done
 
 Redundant because:
 - The repository does not have any additional checks for PR, except [`test-on-push.yml`](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/test-on-push.yml). Nor does it have [merge queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue) set up.
-- [`test-on-push.yml`](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/test-on-push.yml), will not trigger for the pushed `LOCAL_BRANCH` because the push was made from the workflow with `GITHUB_TOKEN`. As stated in [the docs](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
+- [`test-on-push.yml`](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/test-on-push.yml), will not trigger for the pushed `LOCAL_BRANCH` because the push was made from the workflow with `GITHUB_TOKEN`. More info in [the docs](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow).
+
+So, because of the ppoints listed above, the merge happens instantly.
+
+At last, we then request the SHA of the merge commit on the base branch:
+
+```bash
+MERGE_COMMIT=$(gh pr view $PR_URL --json mergeCommit --template '{{.mergeCommit.oid}}')
+```
+
+And supply it to the workflow output:
+
+```bash
+echo "commit_sha=$MERGE_COMMIT" >> $GITHUB_OUTPUT
+```
+
+This SHA is used in another workflow to update the tag and release commit.
+
+### Tag and release update
+
+After getting the merge commit SHA it is then supplied to the tag updater [workflow](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/point-tag-to-new-commit.yml). Along with commit sha this workflow also requires tag name to be passed, and a personal access token (if called from another workflow).
+
+#### Get tag's current commit
+
+At first we check that the tag with provided name exists, and if it does get it's current commit:
+
+```bash
+TAG=${{ inputs.tag_name }}
+TAG_COMMIT=$( gh api \
+--method GET \
+-H "Accept: application/vnd.github+json" \
+-H "X-GitHub-Api-Version: 2022-11-28" \
+/repos/ydernov/typing-effect/git/refs/tags/$TAG | jq '.object.sha' | tr -d '"' )
+```
+
+Here we use GitHub CLI to request info about a tag from GitHub API. It returns a JSON encoded object, which then piped to `jq` to access the commit sha. Also `tr -d '"'` is performed on the resulting string to remove `"` from it, because `jq` will return a `quoted string`, like `"f88e70a6af3814417955dca6ebc451b83fcb91d2"`. Which bash then interpretes as `"f88e70a6af3814417955dca6ebc451b83fcb91d2"` instead of `f88e70a6af3814417955dca6ebc451b83fcb91d2`.
+
+> Note: You can find more information about this endpoint in the [GitHub REST API docs](https://docs.github.com/en/rest/git/refs?apiVersion=2022-11-28#get-a-reference).
+> You can also access this endpoint from a browser, for example: https://api.github.com/repos/ydernov/typing-effect/git/refs/tags/v1.3.5.
+
+Next we check that `TAG_COMMIT` is not empty:
+
+```bash
+[ -z "$TAG_COMMIT" ]
+```
+
+And that it is not a string with value `null`:
+
+```bash
+[ "$TAG_COMMIT" = null ]
+```
+
+This happens if `jq` fails to find the key `'.object.sha'`. Which probably means that the tag was not found, like with this response:
+
+```json
+{
+  "message": "Not Found",
+  "documentation_url": "https://docs.github.com/rest/git/refs#get-all-references-in-a-namespace"
+}
+```
+
+If the commit was found it then passed to `$GITHUB_OUTPUT` for the next step.
+
+#### Check the relationship
+
+This step ensures that the two commits exist, and are on the same branch. More accurately, it verifies that they share a common history and one is a descendant of the other. It is done by checking the commits against each other twice:
+
+```bash
+FIRST=$( git merge-base --is-ancestor $TAG_COMMIT $NEW_COMMIT;  echo $?)
+# and
+SECOND=$( git merge-base --is-ancestor $NEW_COMMIT $TAG_COMMIT;  echo $?)
+```
+
+The command `git merge-base --is-ancestor` does not have a return value, only a status code. By convention `0` - `success`, `1` - `error`. To capture it for a variable ` echo $?` is used. Then the results are added together:
+
+```bash
+if [ $((FIRST + SECOND)) -ne 1 ]; then
+  echo "::error::Either the commits are not related or the references do not exist."
+  exit 1
+fi
+```
+
+The idea is that the sum must be `1`, meaning, the commits are related because one of them is an ancestor of another. If `0` - there is no relation, and everything else is just some sort of error. This prevents only unrelated commits from being set as the tag's commit. It allows an older commit (an ancestor of the current tag commit) to be set as the new tag commit.
+
+#### Update tag and release
+
+The tag update is done with REST API via Github CLI:
+
+```bash
+gh api \
+  --method PATCH \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  /repos/ydernov/typing-effect/git/refs/tags/$TAG \
+  -f sha=$COMMIT -F force=true
+```
+
+This works for protected branches (this repos's `main` branch does not have `Allow force pushes` checked in it's protection rules in setting). This request is the only reason I use [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) in the workflow instead of `GITHUB_TOKEN`. First time I tested it it worked fine with `GITHUB_TOKEN`, but then, couple of weeks later it just stoped working, so I swithced to personal access token. I've created fine grained token with these permissions:
+
+- Contents - Access: Read and write
+- Metadata - Access: Read-only
+- Workflows - Access: Read and write
+
+More about reference endpoint [here](https://docs.github.com/en/rest/git/refs?apiVersion=2022-11-28#update-a-reference). The docs provide information about whoat kind of tokenn this endpoint woks with. And what permission does the token require.
+
+After updating the tag we should also update the GitHub release object:
+
+```bash
+gh release edit $TAG --target $COMMIT
+```
+
+You can check release info by tag name with this [endpoint](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release-by-tag-name). For example - https://api.github.com/repos/ydernov/typing-effect/releases/tags/v1.3.5.
+
+---
+
+This concludes the "on-release" workflow. It also has coverage-and-badge job, but it is described [here](#coverage).
