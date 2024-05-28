@@ -417,10 +417,172 @@ gh release edit $TAG --target $COMMIT
 
 You can check release info by tag name with this [endpoint](https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release-by-tag-name). For example - https://api.github.com/repos/ydernov/typing-effect/releases/tags/v1.3.5.
 
-This concludes the "on-release" workflow. It also has coverage-and-badge job, but it is described [here](#coverage).
+This concludes the "on-release" workflow. It also has coverage-and-badge job, but it is described [here](#coverage). With this workflow complete, every time you create a release on GitHub you get:
+
+1. Auomatic updates to your package.json and package-lock.json, matching your tag name
+2. Verified tag and release commit, because it is a merge commit created with GitHub CLI
+3. Release artifacts with updated package.json and package-lock.json
 
 ---
 
 ## Publishing
 
-In progress...
+I decided to step away from the original idea of autopublishing on release creation because I figured:
+
+1. I want an option not to publish, or more accurately, I want the ability to choose what to publish.
+2. I didn't want to create a release every time I needed to publish. Usually, this need arose not because of changes to the actual "business function" code of the project, but due to issues with workflows, which were abundant.
+
+So I created a separate [workflow](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/publish-package.yml) with manual trigger. It needs only a tag name as input to know what to publish.
+
+In the first job we check that there is a release associated with given tag. Get the commit SHA and output it. Basically recycling the code from [here](#get-tags-current-commit).
+
+Note that the two publishing jobs have their `needs` set to this job ID. This ensures they will run only if the first job is successful and allows them to access its output (commit SHA).
+
+### Publish to GitHub Packages
+
+Points of interest in [this workflow](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/publish-to-github-packages.yml):
+
+1. Set `env.NODE_AUTH_TOKEN` to `GITHUB_TOKEN`:
+
+```yml
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+Reusable workflows, like this one, have access to `GITHUB_TOKEN` in [secters context](https://docs.github.com/en/actions/learn-github-actions/contexts#secrets-context).
+
+2. In `setup-node` action, set `registry-url` to "https://npm.pkg.github.com":
+
+```yml
+uses: actions/setup-node@v4
+with:
+  node-version: '20'
+  registry-url: 'https://npm.pkg.github.com'
+```
+
+When `registry-url` set to "https://npm.pkg.github.com", `setup-node` action creates `.npmrc` file with project owner's [scope](https://docs.npmjs.com/cli/v10/using-npm/scope). The scope is required by GitHub Packages.
+
+3. The scope also needs to be set for `name` in `package.json`. Luckily, you don't have to set the scope in the actual code of the project, just for curren publish:
+
+```bash
+run: |
+  # capture current name, then prepend owner name for scope
+  sed -i 's/"name": "\(.*\)"/"name": "@ydernov\/\1"/' package.json
+  npm i
+```
+
+Here I use `sed` to prepend my GitHub user name with `@` symbol and forward slash to the package name, transforming this:
+
+```json
+"name": "typing-effect-ts",
+```
+
+into this:
+```json
+"name": "@ydernov/typing-effect-ts",
+```
+
+At this point everything is set up, all there is to do is just to run:
+
+```bash
+npm run build
+npm publish
+```
+
+Remember that `npm run build` depends on your `package.json`'s `scripts` setup.
+
+In my case there is one additional intermediate step. In my README, I use a couple of GIF's as examples. I add them with `<img>` tag, and I use relative path for `src`, because they are located in `example_demos` directory in my project's code:
+
+```markdown
+<img src="example_demos/first_example.gif"  />
+```
+
+While this works when publishing to NPM, GitHub Packages fails to resolve the URL's, so the package page shows empty images. To fix it, I added a step to transform relative imge URL's to absolute:
+
+```bash
+REPO_LINK=https://github.com/ydernov/typing-effect/raw/main/
+sed -i "s|\(\<img src\=\"\)\(example_demos\)|\1$REPO_LINK\2|" README.md
+```
+
+Yet again with `sed`. Here it matches `<img src="` with `example_demos` in it's path and inserts predefined `REPO_LINK` at the start of `src="`. Also, here the `|` character is used as a delimiter for `sed`.
+
+More info on publishing NPM package to GitHub packages [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#publishing-a-package).
+
+### Publish to NPM
+
+TypingEffect is published to NPM with [provenance statements](https://docs.npmjs.com/generating-provenance-statements).
+
+To do so as well, you need to update your `package.json`. Set the [`repository` field](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#repository). Like so:
+
+```json
+"repository": {
+    "type": "git",
+    "url": "https://github.com/ydernov/typing-effect.git"
+}
+```
+
+Specifying this field allows the relative paths for images in README to work on published package's page on NPM right away. It also adds links to the GitHub repo on the page:
+
+<img src="/example_demos/npm_gh_repo_links.png" width="400px" />
+
+Now this [workflow](https://github.com/ydernov/typing-effect/blob/ydernov-patch-1/.github/workflows/publish-to-npm.yml) requires you to provide NPM token. Generate token (I use classic token, for automation) in your NPM account settings. And add it to you repository secrets. And set as `env.NODE_AUTH_TOKEN`:
+
+```yml
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+Notice that on `workflow_call`, - when it's called by another workflow, it has `secrets` "input" and requires `NPM_TOKEN` to be provided. While on `workflow_dispatch`, - whe it is triggered manualy, it only needs a `ref` `input`. That is because as a manualy triggered workflow it has access to repository [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions). But as a reusable workflow it only has access to [secters context](https://docs.github.com/en/actions/learn-github-actions/contexts#secrets-context).
+
+That is why NPM token secret needs to be provided from the caller workflow:
+
+```yml
+publish-to-npm:
+  needs: check-release-and-get-commit
+  uses: ./.github/workflows/publish-to-npm.yml
+  with:
+    ref: ${{ needs.check-release-and-get-commit.outputs.sha }}
+  secrets:
+    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+Also notice:
+
+```yml
+permissions:
+  id-token: write
+```
+
+Despite default write permissions set for `GITHUB_TOKEN` in repository settings, `id-token: write` still has to be set here. Otherwise it wouldn't work, at least if publishing with provenance. I **DID NOT** test without provenance.
+
+Next is pretty straightforward:
+1. Set `registry-url` to "https://registry.npmjs.org" in `setup-node` action.
+2. Then install and build:
+```bash
+npm ci
+npm run build
+```
+
+3. And publish with provenance:
+```bash
+npm publish --provenance --access public
+```
+
+TypingEffect package is public, so I add flag `--access` with value `public`.
+
+With this workflow complete we now can publish to NPM by tag. And provenance adds some nice green check marks.
+
+Such as verified version:
+
+<img src="/example_demos/npm_verified_version.png" width="400px" />
+
+And a provenance box with detailed build information at the bottom of the page:
+
+<img src="/example_demos/npm_provenance.png" />
+
+### ToDo
+
+Additional things to do for publishing:
+- Look into [artifact attestations](https://docs.github.com/en/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)
+- Create badges for versions published to NPM and GitHub packages
+- Create badges indicating successful or failing publishes of a release
+---
