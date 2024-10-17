@@ -59,7 +59,7 @@ type InstanceState = "initialized" | "ready" | "running" | "disposed";
 type CallbackType = (string: string) => void;
 
 type ScheduledCallbacks = Record<
-  RunningStageName | "arrayFinished",
+  RunningStageName | "arrayFinished" | "instanceDisposed",
   {
     callback: () => void | RunningStageName;
     once: boolean;
@@ -471,12 +471,13 @@ export class TypingEffect {
     afterUntyping: [],
     delayBeforeTyping: [],
     arrayFinished: [],
+    instanceDisposed: [],
   });
 
   #scheduledCallbacks = this.#scheduledCallbacksInit();
 
   /**
-   * Schedules a callback to be executed once per stages cycle at a specific stage of the typing effect.
+   * Schedules a callback to be executed once per stage's cycle at a specific stage of the typing effect.
    *
    * @param {RunningStageName} stageName - The name of the stage at which the callback should be executed.
    * @param callback - The callback function to be scheduled.
@@ -484,7 +485,7 @@ export class TypingEffect {
    * If true, the callback will be executed only once when the stage is reached for the first time.
    */
   #scheduleCallback = (
-    stageName: RunningStageName | "arrayFinished",
+    stageName: RunningStageName | "arrayFinished" | "instanceDisposed",
     callback: () => void,
     once: boolean
   ): symbol => {
@@ -501,7 +502,7 @@ export class TypingEffect {
 
   // Leave the actual removal up to runScheduledCallbacks so to not to interfere with it's work
   #markScheduledCallbackForRemoval = (
-    stageName: RunningStageName | "arrayFinished",
+    stageName: RunningStageName | "arrayFinished" | "instanceDisposed",
     cbId: symbol
   ) => {
     const cbElem = this.#scheduledCallbacks[stageName].find(
@@ -512,7 +513,9 @@ export class TypingEffect {
     }
   };
 
-  #runScheduledCallbacks = (stageName: RunningStageName | "arrayFinished") => {
+  #runScheduledCallbacks = (
+    stageName: RunningStageName | "arrayFinished" | "instanceDisposed"
+  ) => {
     if (this.#instanceState !== "disposed") {
       const indexesToRemove: number[] = [];
       this.#scheduledCallbacks[stageName].forEach((callbackData, index) => {
@@ -708,6 +711,7 @@ export class TypingEffect {
   #dispose = () => {
     this.#rafLoop && cancelAnimationFrame(this.#rafLoop.rafId);
     this.#rafLoop = null;
+    this.#runScheduledCallbacks("instanceDisposed");
     this.#instanceState = "disposed";
     this.#runningState = "idle";
     this.#strings = [];
@@ -1211,6 +1215,30 @@ export class TypingEffect {
       return () => this.#markScheduledCallbackForRemoval("arrayFinished", cbId);
     },
     "onArrayFinished",
+    "any",
+    "own"
+  );
+
+  /**
+   * Registers a callback that will be called when instance is being disposed right before setting `instanceState` to `disposed`.
+   * @param callback - A function to be called at disposal.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
+  onInstanceDisposed = this.#constructPublicMethod(
+    (callback: () => void) => {
+      if (typeof callback !== "function") {
+        throw new Error("Provided callback is not a function.");
+      }
+
+      const cbId = this.#scheduleCallback("instanceDisposed", callback, true);
+
+      return () =>
+        this.#markScheduledCallbackForRemoval("instanceDisposed", cbId);
+    },
+    "onInstanceDisposed",
     "any",
     "own"
   );
