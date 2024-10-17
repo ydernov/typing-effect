@@ -1219,6 +1219,14 @@ export class TypingEffect {
     "own"
   );
 
+  /**
+   * Registers a callback that will be called when instance is being disposed right before setting `instanceState` to `disposed`.
+   * @param callback - A function to be called at disposal.
+   *
+   * @returns A function that removes the callback
+   * @throws If provided `callback` is not a function; if called after `dispose`
+   */
+
   onInstanceDisposed = this.#constructPublicMethod(
     (callback: () => void) => {
       if (typeof callback !== "function") {
