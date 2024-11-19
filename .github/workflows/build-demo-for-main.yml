@@ -54,7 +54,7 @@ jobs:
             PR_URL=$(gh pr create --title "chore (automated): Updated demo for main" --body "This is an automated PR to update demo" --base gh-pages)
             echo "PR created, pr url - $PR_URL"
             echo "Merging PR - $PR_URL"
-            gh pr merge $PR_URL --auto --delete-branch --squash
+            gh pr merge $PR_URL --delete-branch --squash
             
           else
             echo 'No changes to commit'
