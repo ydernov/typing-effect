@@ -77,7 +77,7 @@ This results in:
 
 #### Creating a custom hook
 
-To use TypingEffect with React I suggest creating a custom hook. This will make it easy to use by abstracting the cleanup fuctionality and returning a reactive instace reference via `useState` hook.
+To use TypingEffect with React I suggest creating a custom hook. This will make it easy to use by abstracting the cleanup fuctionality and returning a reactive instance reference via `useState` hook.
 
 ##### TypingEffect v1.4.0 example:
 
@@ -147,6 +147,8 @@ This example shows how to change the `dispose` method on the instance with a cus
 Another, arguably "cleaner," solution would be extending the TypingEffect class, modifying `dispose`, and adding your custom functionality. More info in [this article](https://javascript.info/class-inheritance#overriding-a-method).
 
 > Note: While no longer necessary (since v1.4.0), this approach may still be useful when working with other third-party packages.
+
+> If you are interrested in  
 
 #### Usage in a component
 
