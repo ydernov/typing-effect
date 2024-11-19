@@ -148,8 +148,6 @@ Another, arguably "cleaner," solution would be extending the TypingEffect class,
 
 > Note: While no longer necessary (since v1.4.0), this approach may still be useful when working with other third-party packages.
 
-> If you are interrested in  
-
 #### Usage in a component
 
 Call the hook:
@@ -182,6 +180,11 @@ const typingRef = useCallback(
   [te]
 );
 ```
+> Note: Notice the check for `ref`. It's necessary because `ref` becomes `null` during component unmounting. Which may happen independently from `te` value change.
+
+Why set contents with `ref.innerText` instead of `setState`? Because the data received from the typing callback is not meant to be part of the business logic. While there may be cases where you need to use it this way, it is intended primarily for presentation and filler content purposes.
+
+Otherwise, I trust you know what you're doing. 😉
 
 ## API
 
