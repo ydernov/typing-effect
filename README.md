@@ -77,7 +77,7 @@ This results in:
 
 #### Creating a custom hook
 
-To use TypingEffect with React I suggest creating a custom hook. This will make it easy to use by abstracting the cleanup fuctionality and returning a reactive instace reference via `useState` hook.
+To use TypingEffect with React I suggest creating a custom hook. This will make it easy to use by abstracting the cleanup fuctionality and returning a reactive instance reference via `useState` hook.
 
 ##### TypingEffect v1.4.0 example:
 
@@ -180,6 +180,11 @@ const typingRef = useCallback(
   [te]
 );
 ```
+> Note: Notice the check for `ref`. It's necessary because `ref` becomes `null` during component unmounting. Which may happen independently from `te` value change.
+
+Why set contents with `ref.innerText` instead of `setState`? Because the data received from the typing callback is not meant to be part of the business logic. While there may be cases where you need to use it this way, it is intended primarily for presentation and filler content purposes.
+
+Otherwise, I trust you know what you're doing. 😉
 
 ## API
 
