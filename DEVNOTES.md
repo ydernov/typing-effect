@@ -283,8 +283,10 @@ PR_URL=$(gh pr create --title "$PR_TITLE" --body "This is an automated PR to upd
 It returns a pull request URL, which is later used to merge the PR:
 
 ```bash
-gh pr merge $PR_URL --auto --delete-branch --squash
+gh pr merge $PR_URL --delete-branch --squash
 ```
+> Note: Earlier I used `--auto` flag as well, but now it requires `Allow auto-merge` checkbox in repository settings to be checked.
+> So I removed it. Seems to work just like before.
 
 There's also a redundant check with timeout for PR status:
 
