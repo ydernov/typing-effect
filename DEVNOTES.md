@@ -199,7 +199,7 @@ create-and-publish-coverage:
     needs: build-demo
     ...
 ```
-Since jobs naturally execute in parallel, and both of these jobs make changes to the same branch `gh-pages`, I decided to run them consecutively. This way, merge conflicts can be avoided. Although **I DID NOT** test them running in parallel, I cannot say for sure if there are any conflicts.
+Since jobs naturally execute in parallel, and both of these jobs make changes to the same branch `gh-pages`, I decided to run them consecutively. This way, merge conflicts can be avoided. Although I **DID NOT** test them running in parallel, I cannot say for sure if there are any conflicts.
 
 #### Release
 
