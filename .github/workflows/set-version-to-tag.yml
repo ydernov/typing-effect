@@ -85,7 +85,7 @@ jobs:
           PR_URL=$(gh pr create --title "$PR_TITLE" --body "This is an automated PR to update package.json and package-lock.json version" --base "$BRANCH")
           echo "PR created, pr url - $PR_URL"
           echo "Merging PR - $PR_URL"
-          gh pr merge $PR_URL --auto --delete-branch --squash
+          gh pr merge $PR_URL --delete-branch --squash
 
           # Since actions do not trigger other workflows (e.g. custom workflows on push, merge, etc.), gh pr merge happens immediately
           # the code below is just for additional safety and future-proofing
