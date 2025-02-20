@@ -34,7 +34,7 @@
   "author": "Yaroslav Dernov",
   "license": "Unlicense license",
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.0.0",
+    "@vitest/coverage-v8": "^3.0.5",
     "jsdom": "^26.0.0",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5",
